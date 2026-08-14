@@ -1,0 +1,386 @@
+
+<!doctype html>
+<html lang="zh-cn" >
+<head>
+    <meta charset="utf-8" />
+    <title>对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态 - IT之家</title>
+    <meta name="description" content="同步开放配套插件生态，新发布的 V4-Pro 模型参数量达 1.6 万亿，权重已采用 MIT 许可证开放，可适配国产 GPU 降低私有化部署门槛。#DeepSeek# #AI编程#" />
+    <meta name="keywords" content="DeepSeek Harness" />
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    
+    <link rel="alternate" type="application/rss+xml" title="RSS 2.0" href="https://www.ithome.com/rss/" />
+            <link href="//www.ithome.com/css/site.min.css?v=2.26.23021315" rel="stylesheet" type="text/css" />
+    <link rel="icon" href="//www.ithome.com/favicon.ico" mce_href="//www.ithome.com/favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="//www.ithome.com/favicon.ico" />
+    <link rel="apple-touch-icon" href="/img/t.png" />
+    
+    <link rel="canonical" href="https://www.ithome.com/0/989/446.htm" />
+        <link href="//img.ithome.com/file/css/card/1.css?v=2.3.25021801" rel="stylesheet" type="text/css" />
+        <link href="//www.ithome.com/css/detail.min.css?v=2.3.202512201503" rel="stylesheet" type="text/css" />
+
+    <link href="//dat.ruanmei.com/lib/login.min.css" type="text/css" rel="stylesheet">
+        <script src="//img.ithome.com/file/js/ua.min.js?v=2.2.25101501" type="text/javascript"></script>
+    <script src="https://s4.zstatic.net/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script>(window.jQuery || document.write("<script src='https:\/\/img.ruanmei.com\/btd\/cdn\/expire-1-w\/jquery\/3.4.0\/jquery.min.js'><\/script>"));</script>
+
+</head>
+<body class="next ">
+    <div id="top">
+        <div class="bb">
+            <a href="https://www.ithome.com" id="logo"></a>
+            <a href="https://img.ithome.com/app/songs/index.html" id="music" target="_blank"></a>
+            <div class="m-menu"><span></span></div>
+            <div class="fl">
+                <div class="mt sel">
+                    <a href="https://www.ithome.com" class="l">首页</a>
+                </div>
+                <div class="mt"><a href="https://quan.ithome.com" class="l">IT圈</a></div>
+                <div class="mt"><a href="https://www.zuihuimai.com" class="l">最会买</a></div>
+           
+            </div>
+            <div class="fr">
+
+                
+                <div class="mt" id="settings">
+                    <a href="###" class="s">设置</a>
+                    <ul class="mu">
+                        <li>
+                            <span>日夜间</span> <div id="dark-switcher">
+                                <div data-dark="2">随系统</div>
+                                <div data-dark="0">浅色</div>
+                                <div data-dark="1">深色</div>
+                            </div>
+                        </li>
+                        <li>
+                            <span>主题色</span> <div id="nav-color"><div>黑色</div></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt" id="menu-con"><a href="https://dyn.ithome.com/tougao/">投稿</a></div>
+                <div class="mt" id="menu-sub">
+                    <a href="###" class="s">订阅</a>
+                    <ul class="mu">
+                        <li><a href="//www.ithome.com/rss/">RSS订阅</a></li>
+                        <li><a href="#" title="IT之家" rel="sidebar" onclick="addFav();">收藏IT之家</a></li>
+                    </ul>
+                </div>
+                <div class="mt so" id="menu-app">
+                    <a href="https://www.ruanmei.com" class="s">软媒应用</a>
+                    <ul class="mu">
+                        <li><a href="//m.ruanmei.com/" target="_blank">App客户端</a></li>
+                        <li><a href="//yaozhi.ruanmei.com/" target="_blank">要知App</a></li>
+                        <li><a href="//mofang.ruanmei.com/" target="_blank">软媒魔方</a></li>
+                    </ul>
+                </div>
+                <div id="toplogin" class="mt">
+                    <div class="init"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        nightModeHelper.init();
+        var nightMode = nightModeHelper.isNight();
+        var navColor = "";
+        if (document.cookie.indexOf("navColor=red") >= 0) {
+            document.body.className += " red";
+            navColor = "red";
+        }
+    </script>
+
+        <div id="nav" class="bb">
+            <div class="fl">
+                    <div>
+                        <a href="//it.ithome.com" target="_blank">业界</a>
+                        <a href="//mobile.ithome.com/" target="_blank">手机</a>
+                        <a href="//www.ithome.com/pc/" target="_blank">电脑</a>
+                        <a href="//www.ithome.com/labs/" target="_blank">测评</a>
+                        <a href="//www.ithome.com/video/" target="_blank">视频</a>
+                        <a href="//next.ithome.com/" target="_blank">AI</a>
+                        <a href="//www.ithome.com/apple/" target="_blank">苹果</a>
+                        <a href="//iphone.ithome.com/" target="_blank">iPhone</a>
+                        <a href="//hmos.ithome.com/" target="_blank">鸿蒙</a>
+                        <a href="//soft.ithome.com/" target="_blank">软件</a>
+                    </div>
+                    <div>
+                        <a href="//auto.ithome.com" target="_blank">智车</a>
+                        <a href="//digi.ithome.com/" target="_blank">数码</a>
+                        <a href="//www.ithome.com/college/" target="_blank">学院</a>
+                        <a href="//game.ithome.com/" target="_blank">游戏</a>
+                        <a href="//www.ithome.com/live/" target="_blank">直播</a>
+                        <a href="//www.ithome.com/5g/" target="_blank">5G</a>
+                        <a href="//www.ithome.com/microsoft/" target="_blank">微软</a>
+                        <a href="//win10.ithome.com/" target="_blank">Win10</a>
+                        <a href="//win11.ithome.com/" target="_blank">Win11</a>
+                        <a href="//www.ithome.com/zt/" target="_blank">专题</a>
+                    </div>
+            </div>
+            <div class="fr">
+                <div class="search"><input type="search" placeholder="请输入关键词" name="q" autocomplete="off" style="box-sizing: content-box;"><button name="sa">搜索</button></div>
+                <div class="hotkeyword">
+                </div>
+            </div>
+        </div>
+            <div id="tt" class="bb">
+                
+            </div>
+
+
+    
+
+
+
+
+
+<div id="dt" class="bb clearfix">
+    <div class="fl content">
+        <div class="cv">
+            <a href="//www.ithome.com">首页</a> <span class="sub">&gt;</span> <a href="https://next.ithome.com/">智能时代</a><span class="sub">&gt;</span><a href="https://next.ithome.com/ai">人工智能</a>
+        </div>
+
+        <h1>对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态</h1>
+
+        <div class="info clearfix">
+            <div class="l">
+
+                    <span id="pubtime_baidu">2026/8/13 20:52:43</span>
+                    <span id="source_baidu">来源：<a href="https://www.ithome.com/0/989/446.htm" target="_blank">IT之家</a></span>
+                    <span id="author_baidu">作者：<strong>问舟</strong></span>
+
+                    <span id="editor_baidu">责编：<strong>问舟</strong></span>
+            </div>
+
+            <div class="r">
+
+                <span id="hitcount"></span>
+                    <a href="#post_comm" class="pti_comm">评论：<span id="commentcount"></span></a>
+            </div>
+        </div>
+
+
+
+        <div class="post_content " id="paragraph">
+            <div class='tougao-user' >感谢IT之家网友 <a href='https://m.ithome.com/html/app/open.html?url=ithome%3A%2F%2Fuserpage%3Fid%3D2002617' rel='nofollow'>Big_Cake</a>、<a href='https://m.ithome.com/html/app/open.html?url=ithome%3A%2F%2Fuserpage%3Fid%3D2145354' rel='nofollow'>软媒新友2145354</a>、<a href='https://m.ithome.com/html/app/open.html?url=ithome%3A%2F%2Fuserpage%3Fid%3D2552584' rel='nofollow'>CuSO4_5H2O</a>、<a href='https://m.ithome.com/html/app/open.html?url=ithome%3A%2F%2Fuserpage%3Fid%3D2497008' rel='nofollow'>铃萤_RinLin</a>、<a href='https://m.ithome.com/html/app/open.html?url=ithome%3A%2F%2Fuserpage%3Fid%3D1237605' rel='nofollow'>Juliandu</a> 的线索投递！</div>
+            <p data-vmark="97d7"><a class="s_tag" href="https://www.ithome.com/" target="_blank">IT之家</a> 8 月 13 日消息，DeepSeek-V4-Pro-0813 正式开源，同时还推出了其开源（MIT 协议）的代码智能体框架 Harness 的 v0.1 开发者预览版（基于 Cordis），并同步开放了配套的插件生态系统。</p><p data-vmark="d975">截至IT之家发稿，相关 GitHub 仓库仍处于非公开状态（更新：现已公开）。</p><p data-vmark="0b34">在已安装 <span class="link-text-start-with-http">Node.js</span> 开发工具链的系统中，可以使用 npx 命令快速启动 DeepSeek Harness 的 Web UI：</p><pre class="brush:javascript;toolbar:false">npx&nbsp;@deepseek-ai/dsh&nbsp;web</pre><p data-vmark="65d9">该命令会启动 Web UI，默认地址为 <code>http://127.0.0.1:3080</code>。</p><p data-vmark="3166" style="text-align: start;">如需从仓库源码运行：</p><pre>git&nbsp;clone&nbsp;https://github.com/deepseek-ai/deepseek-harness.git
+cd&nbsp;deepseek-harness
+pnpm&nbsp;install
+pnpm&nbsp;run&nbsp;build
+pnpm&nbsp;dsh&nbsp;web</pre><p data-vmark="8338" style="text-align: center;"><img src="//img.ithome.com/images/v2/t.png" w="195" h="41" data-vmark="5541" class="lazy" title="对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态" data-original="https://img.ithome.com/newsuploadfiles/2026/8/b724409f-5619-4f00-b4e7-e1c3230d28dd.png" width="195" height="41"></p><p data-vmark="827d">据官方介绍，DeepSeek Harness 采取“一切皆插件”的设计思路。深度求索采用插件式开放架构来构建 Agent Harness：模型、工具、技能、会话、沙箱、存储、循环、调度、UI 等所有 Agent 能力均由插件组合而成，可自由替换、灵活重组。</p><p data-vmark="7bb1" style="text-align: center;"><img src="//img.ithome.com/images/v2/t.png" w="1080" h="653" alt="图片" data-advance="W3siVHlwZSI6IndlYnBhIiwiVXJsIjoiaHR0cHM6Ly9pbWcuaXRob21lLmNvbS9uZXdzdXBsb2FkZmlsZXMvMjAyNi84L2E5YzJjMTlmLWYzMTMtNGMxNi1hNWExLTM5ZTNmY2E2MzRkZi53ZWJwIn1d" data-preview="https://img.ithome.com/newsuploadfiles/2026/8/0012c78e-bbc8-41d4-a832-1f094449f912.gif?x-bce-process=image/format,f_png" data-vmark="9cbb" class="lazy" title="对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态" data-original="https://img.ithome.com/newsuploadfiles/2026/8/0012c78e-bbc8-41d4-a832-1f094449f912.gif" width="1080" height="496"></p><p data-vmark="6a27">“Harness”的通俗定义是将模型转化为智能体的工具。在大型语言模型之外，Harness 负责调度上下文、工具、任务状态、反馈与边界，把模型能力落地到真实环境中，完成从理解需求到交付代码的完整闭环。DeepSeek 此前在官方招聘信息中给出了“Model+Harness=Agent”的公式。</p><p data-vmark="2a0a">在产品定位上，DeepSeek Harness 精准对标 OpenAI Codex 及 Anthropic Claude Cowork，旨在成为一款主打编程和办公场景的 AI 生产力工具。</p><p data-vmark="6d0b">团队负责人崔添翼已于 8 月 2 日面向全球公开征集 Harness 内测用户。招募帖发布后，短时间内吸引了数十名全球开发者报名。</p><p data-vmark="22cc" style="text-align: center;"><img src="//img.ithome.com/images/v2/t.png" w="1163" h="1081" data-vmark="df25" class="lazy" title="对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态" data-original="https://img.ithome.com/newsuploadfiles/2026/8/833778a6-8e65-4543-912e-77c3207205f0.png" width="1163" height="762"></p><p data-vmark="6d5d">DeepSeek Harness 基于具有时空可组合性的 Cordis 插件系统构建。Cordis 元框架只负责插件的加载与卸载以及依赖关系，Agent Harness 的所有具体组件都是不同的 Cordis 插件。插件通过 Cordis 服务与事件彼此协作，并可以在配置层自由组合。</p><p data-vmark="a2c3">开发者无需改动 DeepSeek Harness 的源码本身，就能以插件的方式独立选择、替换或扩展其中的任一能力。这就是 DeepSeek Harness 最重要的设计原则：一切皆插件。</p><p data-vmark="7103" style="text-align: center;"><img src="//img.ithome.com/images/v2/t.png" w="1080" h="631" alt="图片" data-vmark="cc2b" class="lazy" title="对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态" data-original="https://img.ithome.com/newsuploadfiles/2026/8/e04360db-ef29-4f4c-9a55-738115e074be.png?x-bce-process=image/format,f_auto" width="1080" height="479"></p><p data-vmark="9611">DeepSeek Harness（DSH）提供 dsh 命令行工具，用于产品配置与启动。其核心命令 dsh --profile &lt;name&gt; 用于启动指定配置文件。该工具支持 Web、Headless 等多种运行模式，并允许通过插件机制进行扩展。</p><p data-vmark="3cdd">针对不同的使用场景，DeepSeek Harness 提供四种模式，每种模式会默认加载不同的插件集合：</p><ul class=" list-paddingleft-2"><li><p data-vmark="f027">标准模式：提供完整的工具组合；</p></li><li><p data-vmark="22c9">PTC 模式：程序化工具调用（Programmatic Tool Calling），由模型生成的一段代码来组合多轮工具调用；</p></li><li><p data-vmark="d6bf">极简模式：仅保留一个 shell 工具与一个文件编辑工具，用于最小环境下的模型基准测试；</p></li><li><p data-vmark="50c5">创造模式：可以检查当前运行时、在内存中试验 Cordis 插件，并据此组合和创作新的模式。</p></li></ul><p data-vmark="a14a" style="text-align: center;"><img src="//img.ithome.com/images/v2/t.png" w="1080" h="612" alt="图片" data-vmark="87a5" class="lazy" title="对标 Claude Cowork：DeepSeek Harness 公测，同步开放插件生态" data-original="https://img.ithome.com/newsuploadfiles/2026/8/34dac596-4a8c-4b9b-b8df-01775367ca1b.png?x-bce-process=image/format,f_auto" width="1080" height="465"></p><p data-vmark="2b07">DeepSeek-V4-Pro-0813 是一款基于混合专家（MoE）的模型，总参数量高达 1.6 万亿，实际推理中每个 token 仅激活 490 亿参数。该模型拥有 100 万 token 的上下文窗口，并支持最大 38.4 万 token 的输出长度。</p><p data-vmark="967a">在交互模式上，V4 Pro 提供“思考模式”与“非思考模式”两种选项，其中思考模式为默认设置。此外，V4 Pro 全面支持 JSON 结构化输出、Tool Calls、Responses API 和 Anthropic API 等高级功能。</p><p data-vmark="c510">据 DeepSeek 开展的内部测评，正式版相比预览版能力大幅提升，在多项测试中接近甚至超越 Claude Fable 5。例如在 Terminal Bench 2.1 测试中得分 87.9，远超预览版的 72.1。在其他测试中，DeepSWE 从 12.8 跃升至 62.7，DSBench-Hard 翻倍至 67.2。</p><p data-vmark="dd65">值得关注的是，DeepSeek-V4-Pro-0813 的权重已正式开放。DeepSeek 的权重采用 MIT 许可证。此举被解读为将模型底座从对特定算力的依赖中解耦，开发者可下载自建，不再依赖云端单一服务；国产 GPU、通用算力卡无需厂商定制即可直接运行。这降低了政企私有化门槛，提升了供应链抗风险能力。</p>
+        </div>
+
+        
+        
+
+        
+
+
+            <div class="newserror">
+                <button class="water" data-nid="989446">投诉水文</button>
+                <button class="error" data-nid="989446">我要纠错</button>
+            </div>
+
+            <div class="newsgrade"></div>
+        <div class="shareto">
+            
+            <div class="bdsharebuttonbox">
+                <a href="https://connect.qq.com/widget/shareqq/index.html?url=https%3a%2f%2fwww.ithome.com%2f0%2f989%2f446.htm&title=%e5%af%b9%e6%a0%87+Claude+Cowork%ef%bc%9aDeepSeek+Harness+%e5%85%ac%e6%b5%8b%ef%bc%8c%e5%90%8c%e6%ad%a5%e5%bc%80%e6%94%be%e6%8f%92%e4%bb%b6%e7%94%9f%e6%80%81&summary=" class="bds_qzone" target="_blank" title="分享到QQ"></a>
+                <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+                <a href="https://service.weibo.com/share/share.php?url=https%3a%2f%2fwww.ithome.com%2f0%2f989%2f446.htm&title=%e5%af%b9%e6%a0%87+Claude+Cowork%ef%bc%9aDeepSeek+Harness+%e5%85%ac%e6%b5%8b%ef%bc%8c%e5%90%8c%e6%ad%a5%e5%bc%80%e6%94%be%e6%8f%92%e4%bb%b6%e7%94%9f%e6%80%81" target="_blank" class="bds_tsina" title="分享到新浪微博"></a>
+            </div>
+            <a class="down_app collapse" href="https://m.ithome.com/ithome/download/?popqr" target="_blank">
+                <span class="d-p">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                <span class="d-t">下载IT之家APP，签到赚金币兑豪礼</span>
+            </a>
+        </div>
+
+        <!-- 相关文章 -->
+        <div class="related_post"><div class="title"><h2>相关文章</h2><div class="hot_tags"><span>关键词：<a href='/tags/DeepSeek%20Harness/' target='_blank'>DeepSeek Harness</a></span></div></div><ul class="list_3"><li><a target="_blank" href="https://www.ithome.com/0/988/327.htm">主攻代码智能体产品？深度求索注册“Deepseek Harness 团队”公众号</a></span></li></ul></div>
+
+        <script>
+            if (nightMode) {
+                document.write('<iframe align="middle" src="//www.ithome.com/block/dajia.html?night=1" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" class="dajia"></iframe>');
+            } else {
+                document.write('<iframe align="middle" src="//www.ithome.com/block/dajia.html" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" class="dajia"></iframe>');
+            }
+        </script>
+
+        <!-- 评论 -->
+            <div id="post_comm" data-id="1d67fec5a114d3ed" data-nid="989446"></div>
+    </div>
+    <div class="fr fx no-bottom">
+        <div id="rank" class="tab-list">
+            
+        </div>
+
+        <div class="cat-list" id="cat-hot" style="display:none">
+        </div>
+
+    </div>
+</div>
+
+
+
+    <div id="fls" class="bb">
+
+
+    <p>
+        <strong>软媒旗下网站：</strong>
+        <a href="//www.ithome.com/" target="_blank">IT之家</a>
+        <a href="//www.zuihuimai.com/" target="_blank">最会买 - 返利返现优惠券</a>
+        <a href="https://iphone.ithome.com/" target="_blank">iPhone之家</a>
+        <a href="//www.win7china.com/" target="_blank">Win7之家</a>
+        <a href="//win10.ithome.com/" target="_blank">Win10之家</a>
+        <a href="https://win11.ithome.com/" target="_blank">Win11之家</a>
+    </p>
+
+    <p>
+        <strong>软媒旗下软件：</strong>
+        <a href="//m.ruanmei.com/" target="_blank">软媒手机APP应用</a>
+        <a href="//mofang.ruanmei.com/" target="_blank">魔方</a>
+        <a href="https://www.zuihuimai.com" target="_blank">最会买</a>
+        <a href="https://yaozhi.ruanmei.com/" target="_blank">要知</a>
+    </p>
+
+
+        
+    </div>
+
+
+    <footer>
+        <div id="lns">
+            <a href="//www.ithome.com/about.htm" target="_blank">关于IT之家</a>
+            |<a href="//www.ruanmei.com/#contact" target="_blank">联系我们</a>
+            |<a href="//www.ruanmei.com/joinus/" target="_blank">加入软媒</a>
+            |<a href="//m.ithome.com/" target="_blank">WAP版</a>
+            |<a href="//www.ithome.com/sitemap/" target="_blank">网站地图</a>
+            |<a href="//www.ithome.com/archiver/" target="_blank">Archiver</a>
+        </div>
+        <div id="fi">
+            <p>IT之家，软媒旗下科技门户网站 - 爱科技，爱这里。</p>
+            <p>Copyright &copy; <a href="//www.ruanmei.com" target="_blank">RuanMei.com</a>, All Rights Reserved.</p>
+            <p>
+                <a href="//www.ruanmei.com/" target="_blank">青岛软媒网络科技有限公司</a>版权所有
+                
+        </div>
+    </footer>
+
+    <script src="//dat.ruanmei.com/lib/login.min.js"></script>
+    <script src="https://s4.zstatic.net/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script>(window.jQuery && window.jQuery.fn && window.jQuery.fn.cookie || document.write("\u003Cscript src=\u0022https:\/\/img.ithome.com\/file\/js\/jquery\/jquery.cookie.js\u0022\u003E\u003C\/script\u003E"));</script>
+    <script src="https://s4.zstatic.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+    <script>(window.jQuery && window.jQuery.fn && window.jQuery.fn.lazyload || document.write("\u003Cscript src=\u0022https:\/\/img.ithome.com\/file\/js\/jquery\/jquery.lazyload.js\u0022\u003E\u003C\/script\u003E"));</script>
+    <script src="//img.ithome.com/file/js/jquery/popwin.js?v=2.22.200813"></script>
+        <script src="//img.ithome.com/file/js/v2.3/common.js?t=20240112"></script>
+    <script src="//api.ithome.com/ovs/ovs.js"></script>
+    
+        <script src="//img.ithome.com/file/js/site.min.js?v=2.25.231124"></script>
+
+    
+    
+    <script type="text/javascript" id="bdshare_js" data="type=tools&uid=192225"></script>
+    <script>
+        var thumb = $('.post_content img').eq(0).attr("src"), title = $("h1").text(), desc = $("meta[name=description]").attr("content");
+        if (desc.length > 85 - title.length) {
+            desc = desc.substring(0, 85 - title.length)
+        }
+        window._bd_share_is_recently_loaded = !1;
+        window._bd_share_main = {
+            version: "2.0",
+            jscfg: {
+                domain: {
+                    staticUrl: "https://img.ithome.com/"
+                }
+            }
+        }
+
+        window._bd_share_config = { "common": { "bdSnsKey": { "tsina": "1369706960", "tqq": "801077952" }, "bdText": "【" + title + "】" + desc + " - 分享自 @IT之家 下载APP立得金币换豪礼！下载：https://m.ithome.com/ithome/download/ 详情：", "bdMini": "2", "bdMiniList": false, "bdPic": thumb, "bdStyle": "1", "bdSize": "32" }, "share": {} };
+        with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = '//img.ithome.com/static/api/js/share.js?v=86835285.js?cdnversion=' + ~(-new Date() / 36e5)];
+    </script>
+
+    
+        <script type="text/javascript" src="//dyn.ithome.com/grade/989446"></script>
+        <script>
+            $(".newsgrade").html(gradestr);
+        </script>
+            <script src="//cmt.ithome.com/api/comment/count?newsid=989446"></script>
+            <script type="text/javascript" src="//dyn.ithome.com/api/hitcount/989446/pc"></script>
+            <script src="//img.ithome.com/file/js/detail.es5.min.js?v=202512201503"></script>
+
+    
+    <script>
+        var commentCssFile = "https://img.ithome.com/file/css/comment/comment.min.css?v=1.1.202505211142";
+        var commentJsFile = "https://img.ithome.com/file/js/comment/comment.es5.min.js?v=1.1.202505211142";
+    </script>
+<script>
+    $(document).ready(function () {
+        var commentDiv = document.getElementById("post_comm");
+        function loadComm() {
+            if (!window._commLoaded && commentDiv) {
+                window._commLoaded = true;
+                commentDiv.innerHTML = '<span class="comm_status" style=" width:100%;text-align:center;display:block;margin-top:20px;font-size:13px; ">评论加载中...</span>';
+                loadFile(commentCssFile, null, true);
+                loadFile(commentJsFile);
+            }
+        }
+        var commentAnchor = document.querySelector(".pti_comm");
+        commentAnchor && commentAnchor.addEventListener("click", function () { window._jumpToComm = true; })
+        var scrollListener = function () { var doc = document.documentElement; var body = document.body; var scrollTop = doc.scrollTop || body.scrollTop; var windowHeight = doc.clientHeight || body.clientHeight; var scrollHeight = doc.scrollHeight || body.scrollHeight; if (scrollHeight - scrollTop - windowHeight <= 150) { loadComm() } };
+        window.addEventListener("scroll", scrollListener);
+        scrollListener();
+    })
+</script>
+    <script>
+        
+        $("#tt").load('https://www.ithome.com/block/tt.html?' + new Date().getTime());
+        
+        $("#rank").load('//www.ithome.com/block/rank.html');
+        
+        $("#cat-hot").load('//www.ithome.com/block/cat/158.html');
+        if ($("#cat-hot").find("*").length > 0) {
+            $("#cat-hot").show();
+        }
+
+        
+        $(function () {
+            if (imageSupportChecker) {
+                imageSupportChecker.ready(function () {
+                    lazyLoad()
+                })
+            } else {
+                lazyLoad()
+            }
+            function lazyLoad() {
+                $("img.lazy").lazyload();
+            }
+        });
+        
+        if ($(".post_content pre").length > 0 && loadFile) {
+            loadFile("//img.ithome.com/file/js/prettify/prettify.js", function () {
+                $("pre").addClass("prettyprint"); prettyPrint();
+            })
+        }
+    </script>
+
+    <div style="display:none">
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?cfebe79b2c367c4b89b285f412bf9867";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    </div>
+</body>
+</html>
