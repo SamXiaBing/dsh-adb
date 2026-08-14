@@ -1,4 +1,4 @@
-import { Schema } from 'schemastery'
+import Schema from 'schemastery'
 
 export const name = 'dsh-adb'
 

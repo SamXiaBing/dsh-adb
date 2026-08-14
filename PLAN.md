@@ -69,7 +69,8 @@ dsh-adb/
 
 - 执行层先 `cordis_inspect_query` 确认 `ctx.subprocess` 接口，再写代码
 - 后台采集遵循 jobs producer 契约（`ctx.jobs.start()`，取消后改用任务自带 signal）
-- 测试：解析纯函数单测（vitest）+ mock 回放（录制 adb 输出 fixture，无真机可跑 CI）
+- 构建：`tsc`（单进程、无 bundler；沙箱友好且小型插件无需打包），发布预构建 `lib/`
+- 测试：解析纯函数单测（node --test）+ mock 回放（录制 adb 输出 fixture，无真机可跑 CI）
 - 命名空间插件形态：只具名导出 `name/inject/Config/apply`，**禁止混入 default export**（Loader unwrap 会丢命名空间）
 
 ## 4. GitHub 管理
