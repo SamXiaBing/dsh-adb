@@ -2,6 +2,10 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [0.1.5] - 2026-08-14
+
+**Changed**：作者身份统一为 SamXiaBing（package.json / LICENSE / 全部提交历史重写为 GitHub noreply 邮箱）。无代码变更。
+
 ## [0.1.4] - 2026-08-14
 
 **Fixed**：`adb_perf_snapshot` 的 battery 指标误传包名（`dumpsys battery` 不接受包名参数，返回 "Unknown command"），导致电池数据永远解析为空 —— 现 battery 不传包名。
