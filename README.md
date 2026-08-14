@@ -1,42 +1,44 @@
 # dsh-adb
 
-> ADB 设备·台架运维工具集 for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+> ADB device & bench operations for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
 
-让 DSH agent 直接操作 Android 设备 / 车机台架：设备发现、结构化 logcat、apk 安装、文件 pull/push、性能快照。面向实车与台架联调场景，业务内通用（不限 Unity、不限具体车机协议）。
+Give DSH agents direct control over Android devices and automotive bench rigs: device discovery, structured logcat, APK install, file pull/push, and performance snapshots. Built for on-vehicle and bench debugging workflows — generic within the domain (no Unity, no vendor protocol lock-in).
 
-## 安装
+**English** | [简体中文](README.zh-CN.md)
+
+## Install
 
 ```sh
 dsh plugin --profile web add dsh-adb
 ```
 
-或从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
+Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
-## 生态收录
+## Ecosystem
 
-- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb@0.1.0` 已发布（2026-08-14）
-- ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **已合并**
-- ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **已合并**
-- ⏳ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — 待合并
+- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 0.1.5)
+- ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **merged**
+- ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **merged**
+- ⏳ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — pending
 
-Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
+Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 
-## 工具
+## Tools
 
-| 工具 | 说明 |
+| Tool | Description |
 | --- | --- |
-| `adb_devices` | 列出设备（serial/state/product/model），先发现再操作 |
-| `adb_connect` / `adb_disconnect` | 无线台架连接（host:port，默认 5555） |
-| `adb_logcat` | 过滤读取（tag/级别/关键字/时间窗/tail）；`run_in_background` 后台连续采集，job_output 读增量、job_kill 停止 |
-| `adb_install` | 安装 apk（-r/-d/-g 选项），校验本地文件存在 |
-| `adb_file` | pull / push / ls / rm，设备隔离 |
-| `adb_perf_snapshot` | `dumpsys meminfo / gfxinfo / battery` 结构化快照（PSS/帧率百分位/卡顿率/电量） |
+| `adb_devices` | List devices (serial/state/product/model); run first to discover serials |
+| `adb_connect` / `adb_disconnect` | Wireless bench connection (host:port, default 5555) |
+| `adb_logcat` | Filtered read (tag/level/keyword/time-window/tail); `run_in_background` streams continuously as a job — read deltas with `job_output`, stop with `job_kill` |
+| `adb_install` | Install APKs (`-r`/`-d`/`-g` options); validates the local file exists |
+| `adb_file` | pull / push / ls / rm, per-device isolation |
+| `adb_perf_snapshot` | Structured `dumpsys meminfo / gfxinfo / battery` snapshots (PSS, frame percentiles, jank rate, battery) |
 
-错误码：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`INSTALL_FAILED`、`ADB_EXIT_<code>` 等，均为结构化 `AdbError`。
+Errors are structured `AdbError` with stable codes: `ADB_NOT_FOUND`, `ADB_UNAVAILABLE`, `DEVICE_NOT_FOUND`, `NO_DEVICES`, `CONNECT_FAILED`, `INSTALL_FAILED`, `ADB_EXIT_<code>`, etc.
 
-## 配置
+## Configuration
 
-`cordis.patch.yml` 的 `config` 块（或 profile patch）：
+Set the `config` block in `cordis.patch.yml` (or a profile patch):
 
 ```yaml
 - id: dsh-adb
@@ -47,36 +49,34 @@ Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
     timeoutMs: 30000
 ```
 
-| 键 | 说明 | 默认 |
+| Key | Description | Default |
 | --- | --- | --- |
-| `adbPath` | adb 可执行文件绝对路径 | 自动探测 PATH / ANDROID_HOME / ANDROID_SDK_ROOT/platform-tools |
-| `defaultSerial` | 默认设备 serial | 无 |
-| `timeoutMs` | 命令超时 | 30000 |
+| `adbPath` | Absolute path to the adb executable | Auto-detect PATH / ANDROID_HOME / ANDROID_SDK_ROOT/platform-tools |
+| `defaultSerial` | Default target device serial | none |
+| `timeoutMs` | Per-command timeout | 30000 |
 
-## 开发
+## Development
 
 ```sh
-npm install            # 本机 NODE_ENV=production 时加 --include=dev
+npm install            # add --include=dev when NODE_ENV=production
 npm run build          # tsc → lib/
-npm test               # 解析器/错误分类单测（node --test）
-npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
+npm test               # parser/classification unit tests (node --test)
+npm pack --dry-run     # verify publish contents (lib/ + cordis.patch.yml)
 ```
 
-注意：本机若设了 `NODE_ENV=production`，npm 会跳过 devDependencies，安装时用 `npm install --include=dev`。
+## Testing & Verification
 
-## 测试与验证
+- Principle: **ship only what is tested** — every committed feature has unit and/or end-to-end coverage.
+- Verified on: Android 13 automotive bench + Android 13 phone.
+- Per-version changes and verification: [CHANGELOG.md](CHANGELOG.md); test methodology and coverage: [docs/TESTING.md](docs/TESTING.md) (Chinese).
 
-- 原则：**提交即测** —— 全部已提交功能均有实测覆盖（单元 + headless 端到端 + 车机台架/真机）。
-- 验证设备：Android 13 车机台架 + Android 13 真机。
-- 版本化变更与每版验证记录见 [CHANGELOG.md](CHANGELOG.md)；测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)。
+## Project Docs (Chinese, for AI agents & contributors)
 
-## 项目文档（供 AI 对话/协作者参考）
-
-- [docs/AGENTS.md](docs/AGENTS.md) — 进项目先读：定位、铁律、命令、环境事实、文档地图
-- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — 目的/范围/非目标/验收标准
-- [docs/TESTING.md](docs/TESTING.md) — 测试哲学（提交即测）、三层测试方法、E2E 步骤、回归清单
-- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) — 进度时间线、4 个已修复 bug 教训、环境/生态经验
-- [PLAN.md](PLAN.md) — 里程碑与待办
+- [docs/AGENTS.md](docs/AGENTS.md) — read first: purpose, rules, commands, environment facts, doc map
+- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — purpose / scope / non-goals / acceptance criteria
+- [docs/TESTING.md](docs/TESTING.md) — testing philosophy, three test layers, E2E steps, regression checklist
+- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) — timeline, fixed-bug lessons, environment & ecosystem notes
+- [PLAN.md](PLAN.md) — milestones & backlog
 
 ## License
 
