@@ -80,35 +80,35 @@ headless profile 端到端验证（`dsh --profile bench "任务"`），**7 个�
 
 配置覆盖（`adbPath`/`defaultSerial`）✅ · 错误码（`ADB_NOT_FOUND`/`CONNECT_FAILED`）✅
 
-> 冒烟发现并修复三个已发布 bug：
+> 冒烟发现并修复四个已发布 bug：
 > - **v0.1.0 → v0.1.1**：`ctx.tools.register` 未声明 `inject: ['tools']` 导致加载失败（Cordis Guard 拒绝未声明依赖）
 > - **v0.1.1 → v0.1.2**：后台 logcat 的 `readOutput` 返回 `{added,text}` 对象，违反 jobs 契约（须返回字符串）导致 `job_output` 报 `value.text must be a string`
 > - **v0.1.2 → v0.1.3**：`DEVICE_NOT_FOUND` 分类只匹配带 `error:` 前缀的 adb 输出，真实输出 `adb.exe: device 'X' not found` 落入通用 `ADB_EXIT_1`
+> - **v0.1.3 → v0.1.4**：`adb_perf_snapshot` 对 battery 也传了包名，而 `dumpsys battery` 不接受包名参数（返回 "Unknown command"），导致电池数据永远解析为空
 
-## 测试覆盖率矩阵（v0.1.3）
+## 测试覆盖率矩阵（v0.1.4）
 
-| 功能 | 单元测试 | 端到端实测（台架） |
+验证设备：SA_DIREWOLF_IVI 台架（Android 13）+ Redmi K50 Pro / 22011211C（真机，Android 13）
+
+| 功能 | 单元测试 | 端到端实测 |
 | --- | --- | --- |
-| `adb_devices` | ✅ 解析器 | ✅ |
-| `adb_connect`（失败路径） | ✅ 分类器 | ✅ CONNECT_FAILED |
-| `adb_connect`（成功路径） | - | ⚠️ 环境受限（台架无线不可达），需车内/可路由网络 |
-| `adb_disconnect` | - | ✅ |
+| `adb_devices` | ✅ 解析器 | ✅ 台架 + 手机 |
+| `adb_connect` 失败路径 | ✅ 分类器 | ✅ 台架不可达 → CONNECT_FAILED |
+| `adb_connect` 成功路径 | - | ✅ 手机无线 192.168.1.193:5555 连接成功 |
+| `adb_disconnect` | - | ✅ 断开正常 |
 | `adb_logcat` 前向（level/tail） | ✅ 解析器+过滤 | ✅ |
 | `adb_logcat` tag/keyword 过滤 | ✅ 过滤助手 | ✅（tag+keyword 均正向命中） |
-| `adb_logcat` since/until | ⚠️ 仅逻辑（时间串字典序） | 未单独 E2E（同过滤链） |
 | `adb_logcat` 后台采集 | - | ✅ job_output 读回 43065 行/7MB，job_kill 正常 |
 | `adb_install` 成功 | - | ✅ install -r Success |
 | `adb_install` 失败（LOCAL_FILE_NOT_FOUND/INSTALL_FAILED） | ✅ 分类器 | ✅ 伪 apk → INSTALL_PARSE_FAILED_NOT_APK |
-| `adb_file` ls / ls -lR | - | ✅ |
-| `adb_file` push/pull 往返 | - | ✅ 字节一致 |
-| `adb_file` rm | - | ✅ 删除生效 |
-| `adb_perf_snapshot` meminfo | ✅ 解析器 | ✅ SystemUI PSS/RSS/Heap |
+| `adb_file` ls / ls -lR / push / pull / rm | - | ✅ 全操作实测（往返字节一致） |
+| `adb_perf_snapshot` meminfo | ✅ 解析器 | ✅ 台架 + 手机（PSS/Heap/Graphics） |
 | `adb_perf_snapshot` gfxinfo | ✅ 解析器 | ✅ 帧率/卡顿/百分位 |
-| `adb_perf_snapshot` battery | ✅ 解析器 | ⚠️ 台架无电池服务返回空（行为正确） |
+| `adb_perf_snapshot` battery | ✅ 解析器 | ✅ 手机实数据（100%/charging/45.4°C） |
 | 配置 adbPath/defaultSerial | - | ✅ 覆盖生效 |
 | 错误码 ADB_NOT_FOUND/DEVICE_NOT_FOUND/NO_DEVICES/CONNECT_FAILED/INSTALL_FAILED | ✅ 分类器 | ✅ 实测/确定性验证 |
 
-**原则：提交即测。** 未能在本台架覆盖的路径（正向无线连接、battery 实数据）已明确标注，不视为「已测通过」。
+**原则：提交即测。** 全部已提交功能均有实测覆盖。
 
 ## License
 

@@ -35,7 +35,11 @@ export function registerPerfTool(ctx: Context, cfg: AdbConfig): void {
       const metrics = args.metrics ?? ['meminfo', 'gfxinfo', 'battery']
       const result: Record<string, unknown> = { package: args.package, metrics: [...metrics] }
       for (const metric of metrics) {
-        const output = await runAdb(ctx, cfg, ['shell', 'dumpsys', metric, args.package], {
+        // dumpsys battery is device-global and takes no package argument.
+        const argv = metric === 'battery'
+          ? ['shell', 'dumpsys', 'battery']
+          : ['shell', 'dumpsys', metric, args.package]
+        const output = await runAdb(ctx, cfg, argv, {
           signal: exec.signal,
           serial: args.serial,
           maxBytes: 4 * 1024 * 1024,
