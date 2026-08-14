@@ -8,6 +8,7 @@ import { parseBattery, parseGfxinfo, parseMeminfo } from '../lib/parsers/perf.js
 test('classifyFailure maps common adb errors to stable codes', () => {
   const cases = [
     { stderr: "error: device 'emulator-5554' not found", expected: 'DEVICE_NOT_FOUND' },
+    { stderr: "adb.exe: device 'does-not-exist' not found", expected: 'DEVICE_NOT_FOUND' },
     { stderr: 'error: no devices/emulators found', expected: 'NO_DEVICES' },
     { stderr: 'failed to connect to 192.168.1.100:5555', expected: 'CONNECT_FAILED' },
     { stderr: 'adb: error: failed to install app.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]', expected: 'INSTALL_FAILED' },
