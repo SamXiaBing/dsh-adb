@@ -110,6 +110,14 @@ headless profile 端到端验证（`dsh --profile bench "任务"`），**7 个�
 
 **原则：提交即测。** 全部已提交功能均有实测覆盖。
 
+## 项目文档（供 AI 对话/协作者参考）
+
+- [docs/AGENTS.md](docs/AGENTS.md) — 进项目先读：定位、铁律、命令、环境事实、文档地图
+- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — 目的/范围/非目标/验收标准
+- [docs/TESTING.md](docs/TESTING.md) — 测试哲学（提交即测）、三层测试方法、E2E 步骤、回归清单
+- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) — 进度时间线、4 个已修复 bug 教训、环境/生态经验
+- [PLAN.md](PLAN.md) — 里程碑与待办
+
 ## License
 
 MIT
