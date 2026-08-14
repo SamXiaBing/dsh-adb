@@ -17,7 +17,7 @@
     "bench"
   ],
   "license": "MIT",
-  "author": "xiabing7",
+  "author": "SamXiaBing",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
