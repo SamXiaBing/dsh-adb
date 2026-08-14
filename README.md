@@ -64,16 +64,25 @@ npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
 
 注意：本机若设了 `NODE_ENV=production`，npm 会跳过 devDependencies，安装时用 `npm install --include=dev`。
 
-## 真机/台架冒烟（2026-08-14，SA_DIREWOLF_IVI 台架）
+## 真机/台架冒烟（2026-08-14，SA_DIREWOLF_IVI 台架，Android 13）
 
-在 headless profile 中端到端验证（`dsh --profile bench "任务"`）：
+headless profile 端到端验证（`dsh --profile bench "任务"`），**7 个工具全部实测通过**：
 
-- `adb_devices` → `f20c9b04 device msmnile_gvmq_for_arm64` ✅
-- `adb_perf_snapshot` meminfo(com.android.systemui) → PSS 133995 KB / RSS 283832 KB / Java Heap 12328 KB / Native Heap 26692 KB ✅
-- `adb_logcat` level=E tail=5 → 真实设备错误日志结构化返回 ✅
-- 配置覆盖（`adbPath` / `defaultSerial`）✅ · 错误码（`ADB_NOT_FOUND`）✅
+| 工具 | 实测结果 |
+| --- | --- |
+| `adb_devices` | ✅ 返回 `f20c9b04 device msmnile_gvmq_for_arm64` |
+| `adb_connect` / `adb_disconnect` | ✅ 不可达端点正确返回 CONNECT_FAILED；disconnect 正常 |
+| `adb_logcat`（前向） | ✅ level=E tail=5 返回真实错误日志 |
+| `adb_logcat`（后台采集） | ✅ job_output 读回 43065 行/7MB 流，job_kill 正常 |
+| `adb_install` | ✅ pull 真机 apk → `install -r` → "Performing Streamed Install / Success" |
+| `adb_file` | ✅ ls / push / pull 往返字节一致 |
+| `adb_perf_snapshot` | ✅ meminfo（SystemUI PSS 131MB）+ gfxinfo（232 帧/60.78% 卡顿）解析正确；battery 空（台架无电池服务） |
 
-> v0.1.0 → v0.1.1 修复：冒烟发现 `ctx.tools.register` 未声明 `inject: ['tools']` 导致加载失败（Cordis Guard 拒绝未声明依赖），已修复并重新发布。
+配置覆盖（`adbPath`/`defaultSerial`）✅ · 错误码（`ADB_NOT_FOUND`/`CONNECT_FAILED`）✅
+
+> 冒烟发现并修复两个已发布 bug：
+> - **v0.1.0 → v0.1.1**：`ctx.tools.register` 未声明 `inject: ['tools']` 导致加载失败（Cordis Guard 拒绝未声明依赖）
+> - **v0.1.1 → v0.1.2**：后台 logcat 的 `readOutput` 返回 `{added,text}` 对象，违反 jobs 契约（须返回字符串）导致 `job_output` 报 `value.text must be a string`
 
 ## License
 

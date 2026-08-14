@@ -129,9 +129,9 @@ function startBackgroundLogcat(ctx: Context, cfg: AdbConfig, args: LogcatArgs, e
         }),
         readOutput: () => {
           const read = handle?.collected.stdout?.readFrom(cursor)
-          if (read === undefined) return { added: 0, text: '' }
+          if (read === undefined) return ''
           cursor += Buffer.byteLength(read.text, 'utf8')
-          return { added: read.text.length, text: read.text }
+          return read.text
         },
       }
     },
