@@ -64,51 +64,11 @@ npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
 
 注意：本机若设了 `NODE_ENV=production`，npm 会跳过 devDependencies，安装时用 `npm install --include=dev`。
 
-## 真机/台架冒烟（2026-08-14，SA_DIREWOLF_IVI 台架，Android 13）
+## 测试与验证
 
-headless profile 端到端验证（`dsh --profile bench "任务"`），**7 个工具全部实测通过**：
-
-| 工具 | 实测结果 |
-| --- | --- |
-| `adb_devices` | ✅ 返回 `f20c9b04 device msmnile_gvmq_for_arm64` |
-| `adb_connect` / `adb_disconnect` | ✅ 不可达端点正确返回 CONNECT_FAILED；disconnect 正常 |
-| `adb_logcat`（前向） | ✅ level=E tail=5 返回真实错误日志 |
-| `adb_logcat`（后台采集） | ✅ job_output 读回 43065 行/7MB 流，job_kill 正常 |
-| `adb_install` | ✅ pull 真机 apk → `install -r` → "Performing Streamed Install / Success" |
-| `adb_file` | ✅ ls / push / pull 往返字节一致 |
-| `adb_perf_snapshot` | ✅ meminfo（SystemUI PSS 131MB）+ gfxinfo（232 帧/60.78% 卡顿）解析正确；battery 空（台架无电池服务） |
-
-配置覆盖（`adbPath`/`defaultSerial`）✅ · 错误码（`ADB_NOT_FOUND`/`CONNECT_FAILED`）✅
-
-> 冒烟发现并修复四个已发布 bug：
-> - **v0.1.0 → v0.1.1**：`ctx.tools.register` 未声明 `inject: ['tools']` 导致加载失败（Cordis Guard 拒绝未声明依赖）
-> - **v0.1.1 → v0.1.2**：后台 logcat 的 `readOutput` 返回 `{added,text}` 对象，违反 jobs 契约（须返回字符串）导致 `job_output` 报 `value.text must be a string`
-> - **v0.1.2 → v0.1.3**：`DEVICE_NOT_FOUND` 分类只匹配带 `error:` 前缀的 adb 输出，真实输出 `adb.exe: device 'X' not found` 落入通用 `ADB_EXIT_1`
-> - **v0.1.3 → v0.1.4**：`adb_perf_snapshot` 对 battery 也传了包名，而 `dumpsys battery` 不接受包名参数（返回 "Unknown command"），导致电池数据永远解析为空
-
-## 测试覆盖率矩阵（v0.1.4）
-
-验证设备：SA_DIREWOLF_IVI 台架（Android 13）+ Redmi K50 Pro / 22011211C（真机，Android 13）
-
-| 功能 | 单元测试 | 端到端实测 |
-| --- | --- | --- |
-| `adb_devices` | ✅ 解析器 | ✅ 台架 + 手机 |
-| `adb_connect` 失败路径 | ✅ 分类器 | ✅ 台架不可达 → CONNECT_FAILED |
-| `adb_connect` 成功路径 | - | ✅ 手机无线 192.168.1.193:5555 连接成功 |
-| `adb_disconnect` | - | ✅ 断开正常 |
-| `adb_logcat` 前向（level/tail） | ✅ 解析器+过滤 | ✅ |
-| `adb_logcat` tag/keyword 过滤 | ✅ 过滤助手 | ✅（tag+keyword 均正向命中） |
-| `adb_logcat` 后台采集 | - | ✅ job_output 读回 43065 行/7MB，job_kill 正常 |
-| `adb_install` 成功 | - | ✅ install -r Success |
-| `adb_install` 失败（LOCAL_FILE_NOT_FOUND/INSTALL_FAILED） | ✅ 分类器 | ✅ 伪 apk → INSTALL_PARSE_FAILED_NOT_APK |
-| `adb_file` ls / ls -lR / push / pull / rm | - | ✅ 全操作实测（往返字节一致） |
-| `adb_perf_snapshot` meminfo | ✅ 解析器 | ✅ 台架 + 手机（PSS/Heap/Graphics） |
-| `adb_perf_snapshot` gfxinfo | ✅ 解析器 | ✅ 帧率/卡顿/百分位 |
-| `adb_perf_snapshot` battery | ✅ 解析器 | ✅ 手机实数据（100%/charging/45.4°C） |
-| 配置 adbPath/defaultSerial | - | ✅ 覆盖生效 |
-| 错误码 ADB_NOT_FOUND/DEVICE_NOT_FOUND/NO_DEVICES/CONNECT_FAILED/INSTALL_FAILED | ✅ 分类器 | ✅ 实测/确定性验证 |
-
-**原则：提交即测。** 全部已提交功能均有实测覆盖。
+- 原则：**提交即测** —— 全部已提交功能均有实测覆盖（单元 + headless 端到端 + 车机台架/真机）。
+- 验证设备：Android 13 车机台架 + Android 13 真机。
+- 版本化变更与每版验证记录见 [CHANGELOG.md](CHANGELOG.md)；测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)。
 
 ## 项目文档（供 AI 对话/协作者参考）
 

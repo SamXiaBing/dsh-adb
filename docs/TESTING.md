@@ -47,7 +47,7 @@ node $dsh --profile bench "调用 adb_devices 并报告结果"
 
 ## 覆盖率矩阵（当前 v0.1.4，全绿）
 
-验证设备：SA_DIREWOLF_IVI 台架（Android 13）+ Redmi K50 Pro / 22011211C（真机）。
+验证设备：Android 13 车机台架 + Android 13 真机。
 
 | 功能 | 单元 | 端到端 |
 | --- | --- | --- |
