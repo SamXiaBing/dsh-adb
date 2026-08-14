@@ -1,8 +1,31 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { classifyFailure } from '../lib/adb.js'
 import { parseDevices } from '../lib/parsers/devices.js'
 import { matchesLevel, matchesKeyword, parseLogcat } from '../lib/parsers/logcat.js'
 import { parseBattery, parseGfxinfo, parseMeminfo } from '../lib/parsers/perf.js'
+
+test('classifyFailure maps common adb errors to stable codes', () => {
+  const cases = [
+    { stderr: "error: device 'emulator-5554' not found", expected: 'DEVICE_NOT_FOUND' },
+    { stderr: 'error: no devices/emulators found', expected: 'NO_DEVICES' },
+    { stderr: 'failed to connect to 192.168.1.100:5555', expected: 'CONNECT_FAILED' },
+    { stderr: 'adb: error: failed to install app.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]', expected: 'INSTALL_FAILED' },
+    { stdout: 'Failure [INSTALL_FAILED_ALREADY_EXISTS]', stderr: '', expected: 'INSTALL_FAILED' },
+    { stderr: 'error: closed', expected: 'ADB_DEVICE_CLOSED' },
+    { stderr: 'unknown thing happened', stdout: '', exitCode: 42, expected: 'ADB_EXIT_42' },
+  ]
+  for (const item of cases) {
+    const error = classifyFailure({
+      stdout: item.stdout ?? '',
+      stderr: item.stderr ?? '',
+      stdoutTruncated: false,
+      stderrTruncated: false,
+      exitCode: item.exitCode ?? 1,
+    })
+    assert.equal(error.code, item.expected, `case: ${item.stderr}`)
+  }
+})
 
 test('parseDevices parses -l output with attributes', () => {
   const text = [

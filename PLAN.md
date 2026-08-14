@@ -1,7 +1,14 @@
 # dsh-adb 开发与发布计划
 
 > ADB 设备·台架运维工具集 —— DeepSeek Harness 第三方插件（bundle）
-> 状态：M0 脚手架完成，M1 五工具实现中
+> 状态：M0 ✅ M1 ✅ M2 进行中（GitHub 授权/发布）
+
+## 进度记录
+
+- M0（已完成）：脚手架 + 计划 + git init + 构建验证（tsc）
+- M1（已完成）：adb 执行层 + 七个工具（devices/connect/disconnect/logcat/install/file/perf_snapshot）+ 解析器单测 8 项全绿
+- M2（进行中）：GitHub 仓库创建/推送/打话题、npm 发布、三份清单 PR
+- 环境备注：本机 `NODE_ENV=production` 导致 npm 跳过 devDeps（用 `--include=dev`）；pnpm 在沙箱内 spawn 被 EPERM 拦截，改用 npm + tsc（无子进程）
 
 ## 1. 为什么做它（定位）
 
@@ -99,7 +106,10 @@ dsh-adb/
 
 ## 7. 待决问题
 
-- [ ] GitHub 认证方式（gh CLI 安装认证 / SSH 密钥 / https+PAT）与用户名空间
-- [ ] npm 包名 `dsh-adb` 是否可用
-- [ ] v0.1 是否含 client 面板（建议后置到 v1.0）
-- [ ] adb 二进制在本机缺失：开发期用 mock fixture，真机验证放台架机
+- [x] GitHub 认证方式（gh CLI 安装完成；设备码授权流程走通中）
+- [x] npm 包名 `dsh-adb` 可用
+- [x] v0.1 不含 client 面板（后置到 v1.0）
+- [x] adb 二进制在本机缺失：解析器用 fixture 单测覆盖，真机验证放台架机
+- [ ] GitHub 仓库创建 + 推送 + topics（等授权完成）
+- [ ] npm publish（需要 npm 账号/token）
+- [ ] 真机/台架冒烟：adb_devices → logcat → install → perf 全链路

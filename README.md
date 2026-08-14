@@ -10,32 +10,50 @@
 dsh plugin --profile web add dsh-adb
 ```
 
-（v0.1 尚未发布，见 [PLAN.md](PLAN.md) 里程碑）
+> v0.1 发布前可从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
-## 工具（v0.1 规划）
+## 工具
 
-- `adb_devices` — 设备列表（serial/state/型号/版本）
-- `adb_connect` / `adb_disconnect` — 无线台架连接
-- `adb_logcat` — 过滤 + 后台采集
-- `adb_install` — apk 安装
-- `adb_file` — pull/push/ls/rm
-- `adb_perf_snapshot` — meminfo/gfxinfo/帧率快照
+| 工具 | 说明 |
+| --- | --- |
+| `adb_devices` | 列出设备（serial/state/product/model），先发现再操作 |
+| `adb_connect` / `adb_disconnect` | 无线台架连接（host:port，默认 5555） |
+| `adb_logcat` | 过滤读取（tag/级别/关键字/时间窗/tail）；`run_in_background` 后台连续采集，job_output 读增量、job_kill 停止 |
+| `adb_install` | 安装 apk（-r/-d/-g 选项），校验本地文件存在 |
+| `adb_file` | pull / push / ls / rm，设备隔离 |
+| `adb_perf_snapshot` | `dumpsys meminfo / gfxinfo / battery` 结构化快照（PSS/帧率百分位/卡顿率/电量） |
+
+错误码：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`INSTALL_FAILED`、`ADB_EXIT_<code>` 等，均为结构化 `AdbError`。
 
 ## 配置
 
+`cordis.patch.yml` 的 `config` 块（或 profile patch）：
+
+```yaml
+- id: dsh-adb
+  name: dsh-adb
+  config:
+    adbPath: C:\Users\me\AppData\Local\Android\Sdk\platform-tools\adb.exe
+    defaultSerial: emulator-5554
+    timeoutMs: 30000
+```
+
 | 键 | 说明 | 默认 |
 | --- | --- | --- |
-| `adbPath` | adb 可执行文件路径 | 自动探测 |
+| `adbPath` | adb 可执行文件绝对路径 | 自动探测 PATH / ANDROID_HOME / ANDROID_SDK_ROOT/platform-tools |
 | `defaultSerial` | 默认设备 serial | 无 |
 | `timeoutMs` | 命令超时 | 30000 |
 
 ## 开发
 
 ```sh
-pnpm install
-pnpm build       # tsup → lib/
-pnpm test        # vitest（解析器单测 + mock 回放）
+npm install            # 本机 NODE_ENV=production 时加 --include=dev
+npm run build          # tsc → lib/
+npm test               # 解析器/错误分类单测（node --test）
+npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
 ```
+
+注意：本机若设了 `NODE_ENV=production`，npm 会跳过 devDependencies，安装时用 `npm install --include=dev`。
 
 ## License
 
