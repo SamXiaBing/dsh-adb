@@ -1,6 +1,6 @@
 {
   "name": "dsh-adb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ADB device & bench operations for DeepSeek Harness: device discovery, structured logcat, apk install, file pull/push, performance snapshots",
   "type": "module",
   "main": "lib/index.js",

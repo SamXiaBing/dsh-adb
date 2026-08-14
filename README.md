@@ -64,6 +64,17 @@ npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
 
 注意：本机若设了 `NODE_ENV=production`，npm 会跳过 devDependencies，安装时用 `npm install --include=dev`。
 
+## 真机/台架冒烟（2026-08-14，SA_DIREWOLF_IVI 台架）
+
+在 headless profile 中端到端验证（`dsh --profile bench "任务"`）：
+
+- `adb_devices` → `f20c9b04 device msmnile_gvmq_for_arm64` ✅
+- `adb_perf_snapshot` meminfo(com.android.systemui) → PSS 133995 KB / RSS 283832 KB / Java Heap 12328 KB / Native Heap 26692 KB ✅
+- `adb_logcat` level=E tail=5 → 真实设备错误日志结构化返回 ✅
+- 配置覆盖（`adbPath` / `defaultSerial`）✅ · 错误码（`ADB_NOT_FOUND`）✅
+
+> v0.1.0 → v0.1.1 修复：冒烟发现 `ctx.tools.register` 未声明 `inject: ['tools']` 导致加载失败（Cordis Guard 拒绝未声明依赖），已修复并重新发布。
+
 ## License
 
 MIT

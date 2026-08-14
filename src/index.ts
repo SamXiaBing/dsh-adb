@@ -9,6 +9,9 @@ import { registerPerfTool } from './tools/perf.js'
 
 export const name = 'dsh-adb'
 
+/** The tool registry is a hard dependency: every tool registers through it. */
+export const inject = ['tools']
+
 /** Plugin config (all optional — `Config` supplies the defaults). */
 export interface Config {
   /** Absolute path to the adb executable. */
