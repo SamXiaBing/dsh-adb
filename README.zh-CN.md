@@ -72,13 +72,13 @@ npm pack --dry-run     # 校验发布包内容（lib/ + cordis.patch.yml）
 - 验证设备：Android 13 车机台架 + Android 13 真机。
 - 版本化变更与每版验证记录见 [CHANGELOG.md](CHANGELOG.md)；测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)。
 
-## 项目文档（供 AI 对话/协作者参考）
+## 项目文档（双语，供 AI 对话/协作者参考）
 
-- [docs/AGENTS.md](docs/AGENTS.md) — 进项目先读：定位、铁律、命令、环境事实、文档地图
-- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — 目的/范围/非目标/验收标准
-- [docs/TESTING.md](docs/TESTING.md) — 测试哲学（提交即测）、三层测试方法、E2E 步骤、回归清单
-- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) — 进度时间线、4 个已修复 bug 教训、环境/生态经验
-- [PLAN.md](PLAN.md) — 里程碑与待办
+- [docs/AGENTS.md](docs/AGENTS.md) / [docs/AGENTS.en.md](docs/AGENTS.en.md) — 进项目先读：定位、铁律、命令、环境事实、文档地图
+- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) / [docs/REQUIREMENTS.en.md](docs/REQUIREMENTS.en.md) — 目的/范围/非目标/验收标准
+- [docs/TESTING.md](docs/TESTING.md) / [docs/TESTING.en.md](docs/TESTING.en.md) — 测试哲学（提交即测）、三层测试方法、E2E 步骤、回归清单
+- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) / [docs/DEVELOPMENT-LOG.en.md](docs/DEVELOPMENT-LOG.en.md) — 进度时间线、4 个已修复 bug 教训、环境/生态经验
+- [PLAN.md](PLAN.md) / [PLAN.en.md](PLAN.en.md) — 里程碑与待办
 
 ## License
 

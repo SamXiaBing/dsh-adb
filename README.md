@@ -70,13 +70,13 @@ npm pack --dry-run     # verify publish contents (lib/ + cordis.patch.yml)
 - Verified on: Android 13 automotive bench + Android 13 phone.
 - Per-version changes and verification: [CHANGELOG.md](CHANGELOG.md); test methodology and coverage: [docs/TESTING.md](docs/TESTING.md) (Chinese).
 
-## Project Docs (Chinese, for AI agents & contributors)
+## Project Docs (bilingual; for AI agents & contributors)
 
-- [docs/AGENTS.md](docs/AGENTS.md) — read first: purpose, rules, commands, environment facts, doc map
-- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) — purpose / scope / non-goals / acceptance criteria
-- [docs/TESTING.md](docs/TESTING.md) — testing philosophy, three test layers, E2E steps, regression checklist
-- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) — timeline, fixed-bug lessons, environment & ecosystem notes
-- [PLAN.md](PLAN.md) — milestones & backlog
+- [docs/AGENTS.md](docs/AGENTS.md) / [docs/AGENTS.en.md](docs/AGENTS.en.md) — read first: purpose, rules, commands, environment facts, doc map
+- [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) / [docs/REQUIREMENTS.en.md](docs/REQUIREMENTS.en.md) — purpose / scope / non-goals / acceptance criteria
+- [docs/TESTING.md](docs/TESTING.md) / [docs/TESTING.en.md](docs/TESTING.en.md) — testing philosophy, three test layers, E2E steps, regression checklist
+- [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) / [docs/DEVELOPMENT-LOG.en.md](docs/DEVELOPMENT-LOG.en.md) — timeline, fixed-bug lessons, environment & ecosystem notes
+- [PLAN.md](PLAN.md) / [PLAN.en.md](PLAN.en.md) — milestones & backlog
 
 ## License
 
