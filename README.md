@@ -10,12 +10,13 @@
 dsh plugin --profile web add dsh-adb
 ```
 
-> v0.1 发布前可从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
+或从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
 ## 生态收录
 
-- ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **已合并**（2026-08-14）
-- ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **已合并**（2026-08-14）
+- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb@0.1.0` 已发布（2026-08-14）
+- ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **已合并**
+- ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **已合并**
 - ⏳ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — 待合并
 
 Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`

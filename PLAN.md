@@ -13,7 +13,7 @@
     - ✅ 0xsline/awesome-deepseek-harness#87 — 已合并（2026-08-14）
     - ✅ awesome-dsh-plugin/awesome-dsh-plugin#85 — 已合并（2026-08-14）
     - ⏳ Alex-Yanggg/awesome-DSH-plugin#29 — 待合并
-  - npm 发布：**待 npmjs 账号授权**（包名 `dsh-adb` 已验证可用）
+  - npm 发布：✅ `dsh-adb@0.1.0` 已发布到 npm（2026-08-14），`dsh plugin add dsh-adb` 可一条命令安装
 - 环境备注：本机 `NODE_ENV=production` 导致 npm 跳过 devDeps（用 `--include=dev`）；pnpm 在沙箱内 spawn 被 EPERM 拦截，改用 npm + tsc（无子进程）；github.com 直连偶发超时，git 推送统一走 `ssh://git@github.com:22/`（避开全局 insteadof 改写）
 
 ## 1. 为什么做它（定位）
