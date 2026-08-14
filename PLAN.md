@@ -7,8 +7,14 @@
 
 - M0（已完成）：脚手架 + 计划 + git init + 构建验证（tsc）
 - M1（已完成）：adb 执行层 + 七个工具（devices/connect/disconnect/logcat/install/file/perf_snapshot）+ 解析器单测 8 项全绿
-- M2（进行中）：GitHub 仓库创建/推送/打话题、npm 发布、三份清单 PR
-- 环境备注：本机 `NODE_ENV=production` 导致 npm 跳过 devDeps（用 `--include=dev`）；pnpm 在沙箱内 spawn 被 EPERM 拦截，改用 npm + tsc（无子进程）
+- M2（进行中）：
+  - GitHub 仓库 `SamXiaBing/dsh-adb` 已创建并推送（SSH:22 + 6 话题标签：dsh-plugin/dsh/adb/android/automotive/bench）
+  - 三份清单 PR 已提交：
+    - 0xsline/awesome-deepseek-harness#87
+    - awesome-dsh-plugin/awesome-dsh-plugin#85
+    - Alex-Yanggg/awesome-DSH-plugin#29（填补空白分类「Life, devices & the physical world」）
+  - npm 发布：**待 npmjs 账号授权**（包名 `dsh-adb` 已验证可用）
+- 环境备注：本机 `NODE_ENV=production` 导致 npm 跳过 devDeps（用 `--include=dev`）；pnpm 在沙箱内 spawn 被 EPERM 拦截，改用 npm + tsc（无子进程）；github.com 直连偶发超时，git 推送统一走 `ssh://git@github.com:22/`（避开全局 insteadof 改写）
 
 ## 1. 为什么做它（定位）
 

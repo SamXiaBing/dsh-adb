@@ -12,6 +12,14 @@ dsh plugin --profile web add dsh-adb
 
 > v0.1 发布前可从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
+## 生态收录（PR 已提交，待合并）
+
+- [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87)
+- [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85)
+- [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29)
+
+Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
+
 ## 工具
 
 | 工具 | 说明 |
