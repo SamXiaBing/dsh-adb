@@ -9,7 +9,7 @@
 
 - **M0 (done)**: scaffold + plan + git init + build verification (tsc)
 - **M1 (done)**: adb execution layer + seven tools + parser unit tests (8 green)
-- **M2 (done)**: GitHub repo `SamXiaBing/dsh-adb` (SSH:22 + 6 topics: dsh-plugin/dsh/adb/android/automotive/bench); three catalog PRs — 0xsline#87 ✅ merged, awesome-dsh-plugin#85 ✅ merged, Alex-Yanggg#29 ⏳ pending; npm `dsh-adb` published
+- **M2 (done)**: GitHub repo `SamXiaBing/dsh-adb` (SSH:22 + 6 topics: dsh-plugin/dsh/adb/android/automotive/bench); three catalog PRs — 0xsline#87 ✅ merged, awesome-dsh-plugin#85 ✅ merged, Alex-Yanggg#29 ✅ merged (2026-08-15); npm `dsh-adb` published
 - **M3 (done)**: bench end-to-end smoke (Android 13 automotive bench) — all 7 tools verified; found & fixed two shipped bugs (0.1.1 missing `inject: ['tools']`, 0.1.2 background logcat jobs string contract)
 - **M4 (done)**: Android 13 phone retest — fixed 0.1.3 (DEVICE_NOT_FOUND classification), 0.1.4 (battery package arg); closed all environment gaps (real battery data, positive wireless connect); "ship only what is tested" achieved
 - Environment notes: `NODE_ENV=production` skips devDeps (use `--include=dev`); sandbox EPERM blocks pnpm spawns (use npm + tsc); GitHub direct connections intermittently time out (push via `ssh://git@github.com:22/`)
@@ -105,6 +105,6 @@ dsh-adb/
 - [x] GitHub auth (SSH:22), repo creation + push + topics
 - [x] npm publish (`dsh-adb@0.1.5` latest)
 - [x] bench/phone smoke: devices → logcat → install → perf full chain (incl. battery real data, positive wireless connect)
-- [ ] PR #29 (Alex-Yanggg) merge
+- [x] All three catalog PRs merged (0xsline#87 / awesome-dsh-plugin#85 / Alex-Yanggg#29)
 - [ ] v1.0 candidates (above)
 - [ ] Revoke publish tokens once releases settle

@@ -19,7 +19,7 @@ Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing
 - ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 0.1.5)
 - ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **merged**
 - ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **merged**
-- ⏳ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — pending
+- ✅ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — **merged**
 
 Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 

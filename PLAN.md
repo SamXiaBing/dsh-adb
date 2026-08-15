@@ -12,7 +12,7 @@
   - 三份清单 PR：
     - ✅ 0xsline/awesome-deepseek-harness#87 — 已合并（2026-08-14）
     - ✅ awesome-dsh-plugin/awesome-dsh-plugin#85 — 已合并（2026-08-14）
-    - ⏳ Alex-Yanggg/awesome-DSH-plugin#29 — 待合并
+    - ✅ Alex-Yanggg/awesome-DSH-plugin#29 — 已合并（2026-08-15）
   - npm 发布：✅ `dsh-adb@0.1.0` 已发布到 npm（2026-08-14），`dsh plugin add dsh-adb` 可一条命令安装
 - M3（已完成）：真机/台架冒烟 —— Android 13 车机台架，7 工具全链路实测通过（devices/connect/disconnect/logcat 前后台/install/file/perf）；冒烟发现并修复两个已发布 bug：v0.1.1 缺 `inject: ['tools']`、v0.1.2 后台 logcat `readOutput` 违反 jobs 字符串契约
 - M4（已完成）：Android 13 真机补测 —— 修复 v0.1.3（DEVICE_NOT_FOUND 分类）、v0.1.4（battery 误传包名）；补测关闭全部环境缺口（battery 实数据、正向无线连接），「提交即测」达成
