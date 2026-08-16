@@ -28,14 +28,15 @@ dsh-adb 让 DSH agent 直接操作 Android 设备/车机台架：设备发现、
 | `adb_install` | apk 安装 | 本地文件先校验（LOCAL_FILE_NOT_FOUND）；-r/-d/-g 选项 |
 | `adb_file` | 文件操作 | pull/push/ls(-lR)/rm；push 校验本地存在 |
 | `adb_perf_snapshot` | 性能快照 | meminfo/gfxinfo 需包名；battery 是设备全局、**不得传包名** |
+| `adb_perf_baseline` | 性能基线（v0.2） | save 存快照（label/tags）；compare 数值 diff；list/delete；本地 JSON 存储（`baselineDir`） |
+| `adb_crash_report` | 崩溃现场（v0.2） | crash buffer（解析条目）+ dropbox 摘录 + 进程摘录 + 可选 meminfo；`since`/`tail` 控制 |
 
-配置（`Config` schema，cordis.patch.yml 可覆盖）：`adbPath`（绝对路径，缺省自动探测 PATH/ANDROID_HOME/ANDROID_SDK_ROOT）、`defaultSerial`、`timeoutMs`（默认 30000）。
+配置（`Config` schema，cordis.patch.yml 可覆盖）：`adbPath`（绝对路径，缺省自动探测 PATH/ANDROID_HOME/ANDROID_SDK_ROOT）、`defaultSerial`、`timeoutMs`（默认 30000）、`baselineDir`（基线存储，缺省 `~/.dsh/storages/dsh-adb`）。
 
 错误码（模型可见契约，稳定）：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`ADB_CONFIG_INVALID`、`ADB_LAUNCH_FAILED`、`ADB_KILLED`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`ADB_DEVICE_CLOSED`、`INSTALL_FAILED`、`LOCAL_FILE_NOT_FOUND`、`ARGS_INVALID`、`JOBS_UNAVAILABLE`、`ADB_EXIT_<code>`（兜底）。
 
 ### v1.0 候选（未排期，按需）
 
-- 性能基线对比（同设备多版本 gfxinfo 对比 + 报告）
 - Client 设备面板（Slot：设备列表/状态 + logcat 流 + 快照对比图）
 - `adb_screenshot` / `adb_screenrecord`
 - `am start -W` 冷启动耗时

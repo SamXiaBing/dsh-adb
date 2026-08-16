@@ -183,7 +183,7 @@ export async function runAdb(
 export function classifyFailure(result: AdbRunResult): AdbError {
   const stderr = result.stderr
   const stdout = result.stdout
-  if (/(?:error:\s*)?device ['"]?[^'\r\n]*['"]? not found/i.test(stderr)) {
+  if (/(?:error:\s*)?device ['"]?[^'\r\n]*['"]? not found|waiting for device/i.test(stderr)) {
     return new AdbError('DEVICE_NOT_FOUND', excerpt(stderr))
   }
   if (/no devices\/emulators found/i.test(stderr)) {

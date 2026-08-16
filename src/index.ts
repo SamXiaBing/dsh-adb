@@ -1,11 +1,14 @@
 import Schema from 'schemastery'
 import type { Context } from '@deepseek-ai/cordis'
+import { DEFAULT_BASELINE_DIR } from './baseline.js'
 import type { AdbConfig } from './adb.js'
 import { registerDeviceTools } from './tools/devices.js'
+import { registerCrashReportTool } from './tools/crash-report.js'
 import { registerFileTool } from './tools/file.js'
 import { registerInstallTool } from './tools/install.js'
 import { registerLogcatTool } from './tools/logcat.js'
 import { registerPerfTool } from './tools/perf.js'
+import { registerPerfBaselineTool } from './tools/perf-baseline.js'
 
 export const name = 'dsh-adb'
 
@@ -20,12 +23,15 @@ export interface Config {
   defaultSerial?: string
   /** Per-command timeout in milliseconds. */
   timeoutMs?: number
+  /** Directory for adb_perf_baseline storage. */
+  baselineDir?: string
 }
 
 export const Config: Schema<Config> = Schema.object({
   adbPath: Schema.string().description('adb 可执行文件绝对路径；缺省自动探测 PATH / ANDROID_HOME / ANDROID_SDK_ROOT / platform-tools'),
   defaultSerial: Schema.string().description('默认目标设备 serial'),
   timeoutMs: Schema.number().default(30000).description('adb 命令超时（毫秒）'),
+  baselineDir: Schema.string().description('adb_perf_baseline 基线存储目录；缺省 ~/.dsh/storages/dsh-adb'),
 })
 
 export function apply(ctx: Context, config: Config): void {
@@ -35,5 +41,7 @@ export function apply(ctx: Context, config: Config): void {
   registerFileTool(ctx, cfg)
   registerLogcatTool(ctx, cfg)
   registerPerfTool(ctx, cfg)
-  ctx.logger.info('[dsh-adb] loaded: adb_devices / adb_connect / adb_disconnect / adb_logcat / adb_install / adb_file / adb_perf_snapshot')
+  registerPerfBaselineTool(ctx, cfg, config.baselineDir ?? DEFAULT_BASELINE_DIR)
+  registerCrashReportTool(ctx, cfg)
+  ctx.logger.info('[dsh-adb] loaded: adb_devices / adb_connect / adb_disconnect / adb_logcat / adb_install / adb_file / adb_perf_snapshot / adb_perf_baseline / adb_crash_report')
 }

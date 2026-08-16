@@ -121,3 +121,18 @@ dsh-adb/
 - [x] GitHub 仓库创建 + 推送 + topics（SSH:22 完成）
 - [x] npm publish（`dsh-adb@0.1.4` latest）
 - [x] 真机/台架冒烟：devices → logcat → install → perf 全链路（含 battery 实数据、正向无线连接）
+
+## 8. 迭代路线图（2026-08 立项，按序执行）
+
+| 版本 | 能力 | 优先级依据 | 状态 |
+| --- | --- | --- | --- |
+| v0.2（P0×2） | `adb_perf_baseline`（save/compare/list/delete + diff 报告） | 快照的价值在对比；服务提测/SOP 交付 | 进行中 |
+| v0.2（P0×2） | `adb_crash_report`（崩溃现场采集：crash buffer/dropbox/进程/内存 → 结构化时间线） | 车机稳定性排查高频（对应 ANR/STR/Heap Dump 系列经验） | 进行中 |
+| v0.3（P1×2） | 批量/多设备操作（filter 批量 install/perf/logcat + 命名会话） | 台架多车机刚需 | 待办 |
+| v0.3（P1×2） | 提测检查 recipe（设备→版本→内存→帧率→关键日志→一键报告） | 把散工具编排成工作流 | 待办 |
+| v1.0（P2） | 设备面板（Client Slot：设备列表/logcat 流/快照对比图） | 旗舰传播件，成本高，P0 站稳后做 | 待办 |
+| v1.0（P2） | `am start -W` 冷启动耗时 | 便宜补齐 | 待办 |
+
+明确不做：screenshot/screenrecord（低差异化）、更多 dumpsys 解析（按需）、领域协议解析（skill 职责）。
+
+发布节奏：v0.2 代码完成后先本地自测（单测 + headless），**真机验证通过后才发 npm**（提交即测）。

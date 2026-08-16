@@ -33,6 +33,8 @@ Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_install` | 安装 apk（-r/-d/-g 选项），校验本地文件存在 |
 | `adb_file` | pull / push / ls / rm，设备隔离 |
 | `adb_perf_snapshot` | `dumpsys meminfo / gfxinfo / battery` 结构化快照（PSS/帧率百分位/卡顿率/电量） |
+| `adb_perf_baseline` | 性能回归：快照存基线（label/tags）、与当前状态数值对比（PSS/卡顿率/百分位）、list/delete（本地存储，`baselineDir`） |
+| `adb_crash_report` | 崩溃现场一键采集：crash buffer 解析 + dropbox 摘录 + 进程状态 + 内存摘要 |
 
 错误码：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`INSTALL_FAILED`、`ADB_EXIT_<code>` 等，均为结构化 `AdbError`。
 
@@ -54,6 +56,7 @@ Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adbPath` | adb 可执行文件绝对路径 | 自动探测 PATH / ANDROID_HOME / ANDROID_SDK_ROOT/platform-tools |
 | `defaultSerial` | 默认设备 serial | 无 |
 | `timeoutMs` | 命令超时 | 30000 |
+| `baselineDir` | `adb_perf_baseline` 基线存储目录 | `~/.dsh/storages/dsh-adb` |
 
 ## 开发
 

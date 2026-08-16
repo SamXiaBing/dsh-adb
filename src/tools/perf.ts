@@ -3,12 +3,47 @@ import type { ToolExecution } from '@deepseek-ai/dsh-tools'
 import { classifyFailure, jsonOutput, runAdb, type AdbConfig } from '../adb.js'
 import { parseBattery, parseGfxinfo, parseMeminfo } from '../parsers/perf.js'
 
-type PerfMetric = 'meminfo' | 'gfxinfo' | 'battery'
+export type PerfMetric = 'meminfo' | 'gfxinfo' | 'battery'
+
+export interface PerfSnapshot {
+  package: string
+  metrics: PerfMetric[]
+  meminfo?: ReturnType<typeof parseMeminfo>
+  gfxinfo?: ReturnType<typeof parseGfxinfo>
+  battery?: ReturnType<typeof parseBattery>
+}
 
 interface PerfArgs {
   package: string
   serial?: string
   metrics?: PerfMetric[]
+}
+
+/** Shared capture: dumpsys meminfo / gfxinfo / battery for one app. */
+export async function capturePerfSnapshot(
+  ctx: Context,
+  cfg: AdbConfig,
+  exec: ToolExecution,
+  args: { package: string; serial?: string; metrics?: PerfMetric[] },
+): Promise<PerfSnapshot> {
+  const metrics = args.metrics ?? ['meminfo', 'gfxinfo', 'battery']
+  const result: PerfSnapshot = { package: args.package, metrics: [...metrics] }
+  for (const metric of metrics) {
+    // dumpsys battery is device-global and takes no package argument.
+    const argv = metric === 'battery'
+      ? ['shell', 'dumpsys', 'battery']
+      : ['shell', 'dumpsys', metric, args.package]
+    const output = await runAdb(ctx, cfg, argv, {
+      signal: exec.signal,
+      serial: args.serial,
+      maxBytes: 4 * 1024 * 1024,
+    })
+    if (output.exitCode !== 0) throw classifyFailure(output)
+    if (metric === 'meminfo') result.meminfo = parseMeminfo(output.stdout)
+    else if (metric === 'gfxinfo') result.gfxinfo = parseGfxinfo(output.stdout)
+    else result.battery = parseBattery(output.stdout)
+  }
+  return result
 }
 
 /** adb_perf_snapshot: dumpsys meminfo / gfxinfo / battery for one app. */
@@ -32,24 +67,7 @@ export function registerPerfTool(ctx: Context, cfg: AdbConfig): void {
     },
     output: jsonOutput(),
     async execute(args: PerfArgs, exec: ToolExecution) {
-      const metrics = args.metrics ?? ['meminfo', 'gfxinfo', 'battery']
-      const result: Record<string, unknown> = { package: args.package, metrics: [...metrics] }
-      for (const metric of metrics) {
-        // dumpsys battery is device-global and takes no package argument.
-        const argv = metric === 'battery'
-          ? ['shell', 'dumpsys', 'battery']
-          : ['shell', 'dumpsys', metric, args.package]
-        const output = await runAdb(ctx, cfg, argv, {
-          signal: exec.signal,
-          serial: args.serial,
-          maxBytes: 4 * 1024 * 1024,
-        })
-        if (output.exitCode !== 0) throw classifyFailure(output)
-        if (metric === 'meminfo') result.meminfo = parseMeminfo(output.stdout)
-        else if (metric === 'gfxinfo') result.gfxinfo = parseGfxinfo(output.stdout)
-        else result.battery = parseBattery(output.stdout)
-      }
-      return result
+      return capturePerfSnapshot(ctx, cfg, exec, args)
     },
   })
 }

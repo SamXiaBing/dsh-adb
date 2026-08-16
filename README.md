@@ -33,6 +33,8 @@ Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_install` | Install APKs (`-r`/`-d`/`-g` options); validates the local file exists |
 | `adb_file` | pull / push / ls / rm, per-device isolation |
 | `adb_perf_snapshot` | Structured `dumpsys meminfo / gfxinfo / battery` snapshots (PSS, frame percentiles, jank rate, battery) |
+| `adb_perf_baseline` | Perf regression: save a snapshot as a baseline (label/tags), compare current state and get a numeric diff (PSS, janky %, percentiles), list/delete baselines (stored locally under `baselineDir`) |
+| `adb_crash_report` | One-call crash scene: parsed logcat crash buffer + dropbox excerpt + process state + memory summary |
 
 Errors are structured `AdbError` with stable codes: `ADB_NOT_FOUND`, `ADB_UNAVAILABLE`, `DEVICE_NOT_FOUND`, `NO_DEVICES`, `CONNECT_FAILED`, `INSTALL_FAILED`, `ADB_EXIT_<code>`, etc.
 
@@ -54,6 +56,7 @@ Set the `config` block in `cordis.patch.yml` (or a profile patch):
 | `adbPath` | Absolute path to the adb executable | Auto-detect PATH / ANDROID_HOME / ANDROID_SDK_ROOT/platform-tools |
 | `defaultSerial` | Default target device serial | none |
 | `timeoutMs` | Per-command timeout | 30000 |
+| `baselineDir` | Directory for `adb_perf_baseline` storage | `~/.dsh/storages/dsh-adb` |
 
 ## Development
 

@@ -2,6 +2,16 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [0.2.0] - 2026-08-15
+
+**Added**：
+- `adb_perf_baseline`：性能基线管理（save/compare/list/delete）。save 存快照（label/tags）；compare 对当前状态做数值 diff（PSS/卡顿率/帧率百分位，含变化量与百分比）；基线存本地 JSON（`baselineDir` 配置，缺省 `~/.dsh/storages/dsh-adb`）。
+- `adb_crash_report`：崩溃现场一键采集——logcat crash buffer（解析为结构化条目）+ dropbox 摘录 + 进程状态摘录 +（给包名时）内存摘要，按时间线组织。
+
+**Changed**：`DEVICE_NOT_FOUND` 分类增加 `- waiting for device -` 匹配（无设备时 adb 的真实输出）。
+
+**Verified**：单测 14 用例全绿（新增 diff 计算 / 存储生命周期 / 损坏文件处理）；headless 验证新工具注册与错误路径（list 返回空基线；save/crash 无设备时返回结构化 DEVICE_NOT_FOUND）。**happy path（真机）待接设备验证后发布**。
+
 ## [0.1.5] - 2026-08-14
 
 **Changed**：作者身份统一为 SamXiaBing（package.json / LICENSE / 全部提交历史重写为 GitHub noreply 邮箱）。无代码变更。
