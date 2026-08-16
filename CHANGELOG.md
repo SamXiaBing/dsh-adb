@@ -10,7 +10,7 @@
 
 **Changed**：`DEVICE_NOT_FOUND` 分类增加 `- waiting for device -` 匹配（无设备时 adb 的真实输出）。
 
-**Verified**：单测 14 用例全绿（新增 diff 计算 / 存储生命周期 / 损坏文件处理）；headless 验证新工具注册与错误路径（list 返回空基线；save/crash 无设备时返回结构化 DEVICE_NOT_FOUND）。**happy path（真机）待接设备验证后发布**。
+**Verified**：单测 14 用例全绿（新增 diff 计算 / 存储生命周期 / 损坏文件处理）；headless 验证新工具注册与错误路径（list 返回空基线；save/crash 无设备时返回结构化 DEVICE_NOT_FOUND）；**真机验证通过**（Redmi K50 Pro）：perf_baseline save→compare（15 字段 diff，渲染/电池近零、内存真实波动）→list→delete；crash_report 采集到真实 crash buffer 43 条；回归 9 工具无影响。已发布。
 
 ## [0.1.5] - 2026-08-14
 

@@ -62,8 +62,8 @@ node $dsh --profile bench "调用 adb_devices 并报告结果"
 | adb_perf_snapshot meminfo | ✅ | ✅ 台架+手机 |
 | adb_perf_snapshot gfxinfo | ✅ | ✅ |
 | adb_perf_snapshot battery | ✅ | ✅ 手机实数据 |
-| adb_perf_baseline diff/store 逻辑 | ✅ 单测（diff 计算/生命周期/损坏文件） | ⏳ 无设备已验证注册+错误路径；真机 happy path 待接设备 |
-| adb_crash_report 采集 | ✅ 解析器 | ⏳ 无设备已验证注册+错误路径；真机 happy path 待接设备 |
+| adb_perf_baseline diff/store 逻辑 | ✅ 单测（diff 计算/生命周期/损坏文件） | ✅ 真机全周期（save→compare→list→delete） |
+| adb_crash_report 采集 | ✅ 解析器 | ✅ 真机 crash buffer 43 条 + dropbox/进程/内存 |
 | 配置覆盖 | - | ✅ |
 | 错误码 5 类核心 | ✅ | ✅ 实测/确定性验证 |
 
