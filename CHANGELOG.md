@@ -8,9 +8,11 @@
 - **Web 设备面板**（client 半，`conversation.view` 页签「设备」，与任务管理并列）：设备列表/状态 + 包名输入 + 性能快照（内存/帧率/电量）+ logcat 过滤（级别/条数）。数据走 Package RPC（`/dsh-adb`：listDevices/perfSnapshot/logcatTail），Host 侧复用已验证的执行核心；headless 组合无 connection 时自动跳过 RPC，工具不受影响。
 - `capturePerfSnapshot` 签名重构（exec → signal），工具/RPC 共用。
 
-**Verified**：单测 14 全绿；headless 验证 1.0.0 加载、9 工具注册、RPC 跳过逻辑、错误路径。**面板 GUI 验收待用户在 web profile 安装 + 重启后确认**（验收通过后正式发布/或按反馈出 patch）。
+**Verified**：单测 20 用例全绿（含 RPC 端点 7 例：设备解析/错误信封/快照/日志过滤/未知端点，基于假 adb 后端注入）；headless 验证加载与错误路径；**Web GUI 真机验收通过**（设备页签显示、RPC 200）。
 
-**Fixed（GUI 验收发现）**：面板 RPC 报 `HTTP 405` —— Host 侧用 `ctx.get('connection')` 在 apply 期读连接服务，Web 组合中该服务晚于插件启动导致处理器未注册。改为 `ctx.inject(['connection'], ...)` 等服务就绪再注册（headless 无 connection 仍自动跳过）。
+**Fixed（GUI 验收发现）**：
+- `HTTP 405` 根因：`connection.rpc.handle(channel, handler, options)` 的 **options 是必填**（`{ authority: 'loopback' }` 信任策略），漏传导致内部 `options.authority` 抛 TypeError、路由未注册。同时把端点分发抽成 `handleRpcEndpoint`（导出、可单测），错误统一返回 `{ok:false, error:{message}}` 而非抛异常。
+- Host 侧改用 `ctx.inject(['connection'], ...)` 等服务就绪再注册（headless 无 connection 自动跳过，工具不受影响）。
 
 ## [0.2.0] - 2026-08-15
 
