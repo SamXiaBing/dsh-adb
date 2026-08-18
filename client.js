@@ -9,6 +9,7 @@ window.__ModuleLoader__.load({
     'use strict'
     const module = { exports: {} }
 
+    const React = require('react')
     const CHANNEL = '/dsh-adb'
 
     function unwrap(value) {

@@ -10,6 +10,8 @@
 
 **Verified**：单测 14 全绿；headless 验证 1.0.0 加载、9 工具注册、RPC 跳过逻辑、错误路径。**面板 GUI 验收待用户在 web profile 安装 + 重启后确认**（验收通过后正式发布/或按反馈出 patch）。
 
+**Fixed（GUI 验收发现）**：面板 RPC 报 `HTTP 405` —— Host 侧用 `ctx.get('connection')` 在 apply 期读连接服务，Web 组合中该服务晚于插件启动导致处理器未注册。改为 `ctx.inject(['connection'], ...)` 等服务就绪再注册（headless 无 connection 仍自动跳过）。
+
 ## [0.2.0] - 2026-08-15
 
 **Added**：

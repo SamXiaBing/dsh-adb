@@ -44,6 +44,9 @@ export function apply(ctx: Context, config: Config): void {
   registerPerfTool(ctx, cfg)
   registerPerfBaselineTool(ctx, cfg, config.baselineDir ?? DEFAULT_BASELINE_DIR)
   registerCrashReportTool(ctx, cfg)
-  registerRpc(ctx, cfg)
+  // The RPC channel needs the client connection, which mounts after this
+  // plugin starts in web compositions; register lazily so headless profiles
+  // (no connection) stay unaffected.
+  ctx.inject(['connection'], (readyCtx) => registerRpc(readyCtx, cfg))
   ctx.logger.info('[dsh-adb] loaded: 9 tools + web device panel rpc')
 }
