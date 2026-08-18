@@ -14,9 +14,13 @@ dsh plugin --profile web add dsh-adb
 
 Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
+## Web device panel (v1.0.0)
+
+A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package-scoped performance snapshot (memory / frame stats / battery), and filtered logcat tail. Data flows over the package RPC channel; requires the plugin installed in a web profile and a GUI restart.
+
 ## Ecosystem
 
-- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 0.1.5)
+- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 1.0.0)
 - ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **merged**
 - ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **merged**
 - ✅ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — **merged**

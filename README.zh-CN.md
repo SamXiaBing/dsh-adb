@@ -14,9 +14,13 @@ dsh plugin --profile web add dsh-adb
 
 或从 GitHub 直装：`dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
+## Web 设备面板（v1.0.0）
+
+会话视图页签「设备」（与 chat/轨迹/任务管理并列）：设备列表/状态、按包名的性能快照（内存/帧率/电量）、过滤 logcat 尾部。数据走 Package RPC；需装入 web profile 并重启 GUI 生效。
+
 ## 生态收录
 
-- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` 已发布（latest: 0.1.5）
+- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` 已发布（latest: 1.0.0）
 - ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **已合并**
 - ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **已合并**
 - ✅ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — **已合并**

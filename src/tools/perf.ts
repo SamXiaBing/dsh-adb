@@ -23,7 +23,7 @@ interface PerfArgs {
 export async function capturePerfSnapshot(
   ctx: Context,
   cfg: AdbConfig,
-  exec: ToolExecution,
+  signal: AbortSignal,
   args: { package: string; serial?: string; metrics?: PerfMetric[] },
 ): Promise<PerfSnapshot> {
   const metrics = args.metrics ?? ['meminfo', 'gfxinfo', 'battery']
@@ -34,7 +34,7 @@ export async function capturePerfSnapshot(
       ? ['shell', 'dumpsys', 'battery']
       : ['shell', 'dumpsys', metric, args.package]
     const output = await runAdb(ctx, cfg, argv, {
-      signal: exec.signal,
+      signal,
       serial: args.serial,
       maxBytes: 4 * 1024 * 1024,
     })
@@ -67,7 +67,7 @@ export function registerPerfTool(ctx: Context, cfg: AdbConfig): void {
     },
     output: jsonOutput(),
     async execute(args: PerfArgs, exec: ToolExecution) {
-      return capturePerfSnapshot(ctx, cfg, exec, args)
+      return capturePerfSnapshot(ctx, cfg, exec.signal, args)
     },
   })
 }

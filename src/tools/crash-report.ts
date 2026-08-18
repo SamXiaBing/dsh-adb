@@ -110,7 +110,7 @@ export function registerCrashReportTool(ctx: Context, cfg: AdbConfig): void {
         if (args.package === undefined) {
           throw new AdbError('ARGS_INVALID', 'meminfo section requires a package')
         }
-        const snapshot = await capturePerfSnapshot(ctx, cfg, exec, {
+        const snapshot = await capturePerfSnapshot(ctx, cfg, exec.signal, {
           package: args.package,
           serial: args.serial,
           metrics: ['meminfo'],

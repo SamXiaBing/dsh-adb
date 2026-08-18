@@ -2,6 +2,14 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [1.0.0] - 2026-08-16
+
+**Added**：
+- **Web 设备面板**（client 半，`conversation.view` 页签「设备」，与任务管理并列）：设备列表/状态 + 包名输入 + 性能快照（内存/帧率/电量）+ logcat 过滤（级别/条数）。数据走 Package RPC（`/dsh-adb`：listDevices/perfSnapshot/logcatTail），Host 侧复用已验证的执行核心；headless 组合无 connection 时自动跳过 RPC，工具不受影响。
+- `capturePerfSnapshot` 签名重构（exec → signal），工具/RPC 共用。
+
+**Verified**：单测 14 全绿；headless 验证 1.0.0 加载、9 工具注册、RPC 跳过逻辑、错误路径。**面板 GUI 验收待用户在 web profile 安装 + 重启后确认**（验收通过后正式发布/或按反馈出 patch）。
+
 ## [0.2.0] - 2026-08-15
 
 **Added**：

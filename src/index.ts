@@ -9,6 +9,7 @@ import { registerInstallTool } from './tools/install.js'
 import { registerLogcatTool } from './tools/logcat.js'
 import { registerPerfTool } from './tools/perf.js'
 import { registerPerfBaselineTool } from './tools/perf-baseline.js'
+import { registerRpc } from './rpc.js'
 
 export const name = 'dsh-adb'
 
@@ -43,5 +44,6 @@ export function apply(ctx: Context, config: Config): void {
   registerPerfTool(ctx, cfg)
   registerPerfBaselineTool(ctx, cfg, config.baselineDir ?? DEFAULT_BASELINE_DIR)
   registerCrashReportTool(ctx, cfg)
-  ctx.logger.info('[dsh-adb] loaded: adb_devices / adb_connect / adb_disconnect / adb_logcat / adb_install / adb_file / adb_perf_snapshot / adb_perf_baseline / adb_crash_report')
+  registerRpc(ctx, cfg)
+  ctx.logger.info('[dsh-adb] loaded: 9 tools + web device panel rpc')
 }

@@ -126,13 +126,12 @@ dsh-adb/
 
 | 版本 | 能力 | 优先级依据 | 状态 |
 | --- | --- | --- | --- |
-| v0.2（P0×2） | `adb_perf_baseline`（save/compare/list/delete + diff 报告） | 快照的价值在对比；服务提测/SOP 交付 | 进行中 |
-| v0.2（P0×2） | `adb_crash_report`（崩溃现场采集：crash buffer/dropbox/进程/内存 → 结构化时间线） | 车机稳定性排查高频（对应 ANR/STR/Heap Dump 系列经验） | 进行中 |
-| v0.3（P1×2） | 批量/多设备操作（filter 批量 install/perf/logcat + 命名会话） | 台架多车机刚需 | 待办 |
-| v0.3（P1×2） | 提测检查 recipe（设备→版本→内存→帧率→关键日志→一键报告） | 把散工具编排成工作流 | 待办 |
-| v1.0（P2） | 设备面板（Client Slot：设备列表/logcat 流/快照对比图） | 旗舰传播件，成本高，P0 站稳后做 | 待办 |
-| v1.0（P2） | `am start -W` 冷启动耗时 | 便宜补齐 | 待办 |
+| v0.2（P0×2） | `adb_perf_baseline`（save/compare/list/delete + diff 报告） | 快照的价值在对比；服务提测/SOP 交付 | ✅ 已发布 |
+| v0.2（P0×2） | `adb_crash_report`（崩溃现场采集：crash buffer/dropbox/进程/内存 → 结构化时间线） | 车机稳定性排查高频（对应 ANR/STR/Heap Dump 系列经验） | ✅ 已发布 |
+| v1.0（P2） | **设备面板**（Web GUI `conversation.view` 页签「设备」，与任务管理并列；Client→Host RPC 复用执行核心；精简版：设备列表/状态 + 性能快照 + logcat 尾部） | 旗舰传播件；用户指定优先（任务管理/Explorer 同款体验） | 代码完成，待 web profile 安装 + GUI 验收 |
+| 待办（候选） | 提测检查 recipe（设备→版本→内存→帧率→关键日志→一键报告） | 把散工具编排成工作流 | 待办 |
+| 待办（候选） | `am start -W` 冷启动耗时 | 便宜补齐 | 待办 |
 
-明确不做：screenshot/screenrecord（低差异化）、更多 dumpsys 解析（按需）、领域协议解析（skill 职责）。
+明确不做：**批量/多设备操作（用户明确无此需求，已从路线图移除）**、screenshot/screenrecord（低差异化）、更多 dumpsys 解析（按需）、领域协议解析（skill 职责）。
 
-发布节奏：v0.2 代码完成后先本地自测（单测 + headless），**真机验证通过后才发 npm**（提交即测）。
+发布节奏：代码完成后先本地自测（单测 + headless），**真机验证通过后才发 npm**（提交即测）。设备面板部署注意：需 `dsh plugin add dsh-adb@新版本` 装入 web profile 并**重启 Web GUI** 才生效（client 包随启动构建加载）。

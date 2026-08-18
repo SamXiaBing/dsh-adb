@@ -84,7 +84,7 @@ export function registerPerfBaselineTool(
       }
 
       if (args.command === 'save') {
-        const snapshot = await capturePerfSnapshot(ctx, cfg, exec, {
+        const snapshot = await capturePerfSnapshot(ctx, cfg, exec.signal, {
           package: args.package,
           serial: args.serial,
           metrics: args.metrics,
@@ -109,7 +109,7 @@ export function registerPerfBaselineTool(
           `no baseline for device ${device} package ${args.package}${args.id !== undefined ? ` (id ${args.id})` : ''}; save one with command=save first`,
         )
       }
-      const current = await capturePerfSnapshot(ctx, cfg, exec, {
+      const current = await capturePerfSnapshot(ctx, cfg, exec.signal, {
         package: args.package,
         serial: args.serial,
         metrics: args.metrics,
