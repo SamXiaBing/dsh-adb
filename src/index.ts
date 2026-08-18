@@ -47,6 +47,13 @@ export function apply(ctx: Context, config: Config): void {
   // The RPC channel needs the client connection, which mounts after this
   // plugin starts in web compositions; register lazily so headless profiles
   // (no connection) stay unaffected.
-  ctx.inject(['connection'], (readyCtx) => registerRpc(readyCtx, cfg))
+  try {
+    ctx.inject(['connection'], (readyCtx) => {
+      console.log('[dsh-adb] rpc: connection injected, registering') // eslint-disable-line no-console
+      registerRpc(readyCtx, cfg)
+    })
+  } catch (error) {
+    console.log(`[dsh-adb] rpc: ctx.inject threw: ${String(error)}`) // eslint-disable-line no-console
+  }
   ctx.logger.info('[dsh-adb] loaded: 9 tools + web device panel rpc')
 }
