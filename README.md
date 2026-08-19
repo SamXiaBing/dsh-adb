@@ -14,9 +14,9 @@ dsh plugin --profile web add dsh-adb
 
 Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing/dsh-adb`
 
-## Web device panel (v1.0.0)
+## Web device panel (v1.1.0)
 
-A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package-scoped performance snapshot (memory / frame stats / battery), and filtered logcat tail. Data flows over the package RPC channel; requires the plugin installed in a web profile and a GUI restart.
+A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/pid filters, pause/clear/auto-scroll), device info card, process list, perf sampling curve (PSS/battery), one-click screenshot preview, and performance snapshot. Data flows over the package RPC channel; requires the plugin installed in a web profile and a GUI restart.
 
 ## Ecosystem
 

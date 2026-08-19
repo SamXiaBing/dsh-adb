@@ -2,6 +2,20 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [1.1.0] - 2026-08-18
+
+**Added（设备面板增强，对照 Android Studio 能力面）**：
+- 包名输入改为**下拉 + 模糊搜索**自动补全（`pm list packages`）
+- **实时 logcat 窗口**：1.5s 增量轮询（`logcatDelta` 按 since 只拉新增）、级别/关键字/进程过滤、暂停/清空/自动滚动
+- 设备信息卡（型号/厂商/Android/API/分辨率/内存总量）
+- 进程列表（按包过滤，点击按 pid 过滤 logcat）
+- 性能采样曲线（每 3s 采 PSS/电量 → SVG 折线，Profiler-lite）
+- 一键截图预览（screencap → pull → base64）
+
+**Changed**：RPC 新增 6 个端点（listPackages/deviceInfo/processList/logcatDelta/screenshot/perfSample），`logcatTail` 保留兼容。
+
+**Verified**：单测 29 全绿（新增 sysinfo 解析器 5 例 + RPC 新端点 5 例，假 adb 后端注入）。**GUI 验收待用户重启后确认**（验收后发布）。
+
 ## [1.0.0] - 2026-08-16
 
 **Added**：
