@@ -2,6 +2,14 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [1.1.3] - 2026-08-19
+
+**Added（i18n + 状态持久化）**：
+- **中英文自适应**：面板文案全部接入字典（`ctx.locale.register('dsh-adb', {zh, en})`），跟随 harness 当前语言自动切换，无需手动开关；页签标签同源。
+- **跨页签状态持久化**：面板状态（设备列表/选中设备/设备信息/包名/快照/进程/实时 logcat 全部过滤与暂停态）移入 `defineStore`（`@deepseek-ai/dsh-client-runtime/client`），切到对话再切回设备，页面状态原样保留。
+
+**Verified**：单测 37 全绿（新增字典完整性 1 例：zh/en 键集一致且逐键非空）。**GUI 验收待用户刷新/重启后确认**（i18n 跟随语言、状态跨页签保留）。
+
 ## [1.1.0] - 2026-08-18
 
 **Added（设备面板增强，对照 Android Studio 能力面）**：

@@ -9,7 +9,18 @@ import vm from 'node:vm'
 const code = readFileSync(new URL('../client.js', import.meta.url), 'utf8')
 const sandbox = { module: { exports: {} } }
 vm.runInNewContext(code, sandbox, { filename: 'client.js' })
-const { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf } = sandbox.module.exports
+const { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf, DICTIONARY } = sandbox.module.exports
+
+test('dictionary: zh and en share the same key set and every key resolves', () => {
+  const zhKeys = Object.keys(DICTIONARY.zh).sort()
+  const enKeys = Object.keys(DICTIONARY.en).sort()
+  assert.deepEqual(zhKeys, enKeys)
+  assert.ok(zhKeys.length >= 25, `expected >= 25 keys, got ${zhKeys.length}`)
+  for (const key of zhKeys) {
+    assert.ok(DICTIONARY.zh[key].length > 0, `zh empty for ${key}`)
+    assert.ok(DICTIONARY.en[key].length > 0, `en empty for ${key}`)
+  }
+})
 
 const ENTRIES = [
   { time: '08-14 10:30:12.345', pid: '1234', tid: '5678', level: 'E', tag: 'AndroidRuntime', message: 'FATAL EXCEPTION' },

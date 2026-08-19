@@ -1,9 +1,10 @@
-/* dsh-adb Web device panel (client half, v1.1.2) — plain JS, no build step.
+/* dsh-adb Web device panel (client half, v1.1.3) — plain JS, no build step.
  * Registers a "设备" tab in conversation.view and talks to the Host half over
  * the package RPC channel /dsh-adb. Uses only client builtins: React, ctx.
- * Dual-mode: in the browser it registers via __ModuleLoader__; when required
- * from Node (tests, via node:vm with a fake `module`), it exports the pure
- * helper functions (formatLogcatBlock / formatSnapshotBlock / extractAdbActivity).
+ * v1.1.3: i18n (follows harness locale via the slots `locale:` seat) + state
+ * survives tab switches (defineStore declared at register).
+ * Dual-mode: browser registers via __ModuleLoader__; Node (tests via node:vm
+ * with a fake `module`) exports the pure helpers + dictionary.
  */
 'use strict'
 
@@ -54,6 +55,68 @@ function formatSnapshotBlock(snapshot) {
   return ['以下是从设备面板抓取的性能快照，请分析：', ...rows.map((r) => '- ' + r)].join('\n')
 }
 
+/** Panel dictionary: zh is the key-set source of truth, en mirrors it. */
+const DICTIONARY = {
+  zh: {
+    'panel.title': 'ADB 设备',
+    'refresh': '刷新',
+    'noDevices': '未连接设备',
+    'deviceInfo': '设备信息',
+    'package': '包名',
+    'packagePlaceholder': '输入或选择包名',
+    'snapshot': '性能快照',
+    'sendToChat': '发送到对话',
+    'processes': '进程（{n}）— 点击按 pid 过滤 logcat',
+    'logcat': 'logcat',
+    'keywordFilter': '关键字过滤',
+    'packageFilter': '包名过滤（按进程）',
+    'resume': '继续',
+    'pause': '暂停',
+    'clear': '清空',
+    'autoScroll': '自动滚动',
+    'shownCount': '已显示 {n} 条',
+    'refreshing': '每 1.5s 增量刷新',
+    'paused': '已暂停',
+    'waitingLog': '（等待日志…）',
+    'agentActivity': 'agent 的 adb 操作',
+    'noData': '（无数据）',
+    'model': '型号', 'manufacturer': '厂商', 'android': 'Android', 'api': 'API',
+    'resolution': '分辨率', 'memTotal': '内存总量',
+    'memPss': '内存 PSS (KB)', 'memRss': '内存 RSS (KB)', 'javaHeap': 'Java Heap (KB)', 'nativeHeap': 'Native Heap (KB)',
+    'frames': '总帧数', 'janky': '卡顿帧 / %', 'p50p90': 'P50/P90 (ms)', 'p95p99': 'P95/P99 (ms)',
+    'battery': '电量', 'temp': '温度 (°C)', 'pkg': '包=', 'pid': 'pid=',
+  },
+  en: {
+    'panel.title': 'ADB Devices',
+    'refresh': 'Refresh',
+    'noDevices': 'No device connected',
+    'deviceInfo': 'Device Info',
+    'package': 'Package',
+    'packagePlaceholder': 'Type or pick a package',
+    'snapshot': 'Perf Snapshot',
+    'sendToChat': 'Send to chat',
+    'processes': 'Processes ({n}) — click to filter logcat by pid',
+    'logcat': 'logcat',
+    'keywordFilter': 'Keyword filter',
+    'packageFilter': 'Package filter (by process)',
+    'resume': 'Resume',
+    'pause': 'Pause',
+    'clear': 'Clear',
+    'autoScroll': 'Auto-scroll',
+    'shownCount': '{n} entries shown',
+    'refreshing': 'incremental 1.5s refresh',
+    'paused': 'paused',
+    'waitingLog': '(waiting for logs…)',
+    'agentActivity': "Agent's adb activity",
+    'noData': '(no data)',
+    'model': 'Model', 'manufacturer': 'Manufacturer', 'android': 'Android', 'api': 'API',
+    'resolution': 'Resolution', 'memTotal': 'Total memory',
+    'memPss': 'PSS (KB)', 'memRss': 'RSS (KB)', 'javaHeap': 'Java Heap (KB)', 'nativeHeap': 'Native Heap (KB)',
+    'frames': 'Total frames', 'janky': 'Janky / %', 'p50p90': 'P50/P90 (ms)', 'p95p99': 'P95/P99 (ms)',
+    'battery': 'Battery', 'temp': 'Temp (°C)', 'pkg': 'pkg=', 'pid': 'pid=',
+  },
+}
+
 // ---- Browser entry ----
 
 if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object') {
@@ -63,6 +126,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
       const module = { exports: {} }
 
       const React = require('react')
+      const { defineStore } = require('@deepseek-ai/dsh-client-runtime/client')
       const CHANNEL = '/dsh-adb'
 
       function unwrap(value) {
@@ -141,32 +205,14 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
 
       function DeviceView(props) {
         const runtime = props.runtime
-        const [devices, setDevices] = React.useState([])
-        const [selected, setSelected] = React.useState(null)
-        const [info, setInfo] = React.useState(null)
-        const [packages, setPackages] = React.useState([])
-        const [pkg, setPkg] = React.useState('com.android.systemui')
-        const [snapshot, setSnapshot] = React.useState(null)
-        const [processes, setProcesses] = React.useState([])
-        const [logEntries, setLogEntries] = React.useState([])
-        const [logLevel, setLogLevel] = React.useState('V')
-        const [logKeyword, setLogKeyword] = React.useState('')
-        const [logPkg, setLogPkg] = React.useState('')
-        const [logPids, setLogPids] = React.useState([])
-        const [logPaused, setLogPaused] = React.useState(false)
-        const [logAuto, setLogAuto] = React.useState(true)
-        const [error, setError] = React.useState(null)
+        const t = props.t || ((key) => DICTIONARY.zh[key] ?? key)
+        const st = props.useStore((s) => s)
+        const actions = props.actions
         const [busy, setBusy] = React.useState(false)
         const logRef = React.useRef(null)
-        const sinceRef = React.useRef('')
-        const selectedRef = React.useRef(null)
-        const levelFilterRef = React.useRef('V')
-        const keywordFilterRef = React.useRef('')
-        const pidsFilterRef = React.useRef([])
+        const stateRef = React.useRef(st)
+        stateRef.current = st
 
-        selectedRef.current = selected
-
-        // Agent adb activity from the live session snapshot (standard prop).
         const adbActivity = props.useSession
           ? props.useSession((snap) => extractAdbActivity(nodeArrayOf(snap)))
           : []
@@ -176,165 +222,152 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
           }
         }
 
-        const fail = (e) => setError(String((e && e.message) || e))
+        const fail = (e) => actions.setError(String((e && e.message) || e))
 
         const refresh = () => {
-          setBusy(true); setError(null)
+          setBusy(true); actions.setError(null)
           runtime.listDevices()
-            .then((value) => setDevices(value.devices ?? []))
+            .then((value) => actions.setDevices(value.devices ?? []))
             .catch(fail)
             .finally(() => setBusy(false))
         }
         React.useEffect(refresh, [])
 
         const selectDevice = (device) => {
-          setSelected(device)
-          setInfo(null); setSnapshot(null); setProcesses([])
-          setLogEntries([]); setLogPids([]); pidsFilterRef.current = []; sinceRef.current = ''
-          setBusy(true); setError(null)
+          actions.setSelected(device)
+          actions.setInfo(null); actions.setSnapshot(null); actions.setProcesses([])
+          actions.clearLog()
+          setBusy(true); actions.setError(null)
           Promise.all([
-            runtime.deviceInfo({ serial: device.serial }).then(setInfo),
-            runtime.listPackages({ serial: device.serial }).then((v) => setPackages(v.packages ?? [])),
+            runtime.deviceInfo({ serial: device.serial }).then(actions.setInfo),
+            runtime.listPackages({ serial: device.serial }).then((v) => actions.setPackages(v.packages ?? [])),
           ]).catch(fail).finally(() => setBusy(false))
         }
 
         const loadProcesses = (pkgName) => {
-          const device = selectedRef.current
+          const device = stateRef.current.selected
           if (!device) return
           runtime.processList({ serial: device.serial, package: pkgName })
-            .then((v) => setProcesses(v.processes ?? []))
+            .then((v) => actions.setProcesses(v.processes ?? []))
             .catch(fail)
         }
-        React.useEffect(() => { if (selected) loadProcesses(pkg) }, [pkg]) // eslint-disable-line react-hooks/exhaustive-deps
+        React.useEffect(() => { if (st.selected) loadProcesses(st.pkg) }, [st.pkg]) // eslint-disable-line react-hooks/exhaustive-deps
 
         const runSnapshot = () => {
-          if (!selected) return
-          setBusy(true); setError(null)
-          runtime.perfSnapshot({ serial: selected.serial, package: pkg })
-            .then(setSnapshot)
+          const device = stateRef.current.selected
+          if (!device) return
+          setBusy(true); actions.setError(null)
+          runtime.perfSnapshot({ serial: device.serial, package: st.pkg })
+            .then(actions.setSnapshot)
             .catch(fail)
             .finally(() => setBusy(false))
         }
 
         const applyPackageFilter = (name) => {
-          setLogPkg(name)
-          setLogEntries([]); sinceRef.current = ''
-          if (name === '') {
-            setLogPids([]); pidsFilterRef.current = []
-            return
-          }
-          const device = selectedRef.current
+          actions.setLogPkg(name)
+          actions.clearLog()
+          if (name === '') { actions.setLogPids([]); return }
+          const device = stateRef.current.selected
           if (!device) return
           runtime.processList({ serial: device.serial, package: name })
-            .then((v) => {
-              const pids = (v.processes ?? []).map((p) => p.pid)
-              setLogPids(pids); pidsFilterRef.current = pids
-            })
+            .then((v) => actions.setLogPids((v.processes ?? []).map((p) => p.pid)))
             .catch(fail)
         }
 
         const applyLogFilters = (level, keyword, pids) => {
-          levelFilterRef.current = level
-          keywordFilterRef.current = keyword
-          pidsFilterRef.current = pids
-          setLogEntries([])
-          sinceRef.current = ''
+          actions.setLogLevel(level)
+          actions.setLogKeyword(keyword)
+          actions.setLogPids(pids)
+          actions.clearLog()
         }
 
         React.useEffect(() => {
-          if (!selected || logPaused) return
+          if (!st.selected || st.logPaused) return
           const timer = setInterval(() => {
+            const s = stateRef.current
             runtime.logcatDelta({
-              serial: selected.serial,
-              since: sinceRef.current,
-              level: levelFilterRef.current,
-              keyword: keywordFilterRef.current || undefined,
+              serial: s.selected.serial,
+              since: s.logSince,
+              level: s.logLevel,
+              keyword: s.logKeyword || undefined,
               tail: 200,
             }).then((value) => {
               let entries = value.entries ?? []
-              const pids = pidsFilterRef.current
-              if (pids.length > 0) entries = entries.filter((e) => pids.includes(e.pid))
+              if (s.logPids.length > 0) entries = entries.filter((e) => s.logPids.includes(e.pid))
               if (entries.length > 0) {
-                setLogEntries((prev) => {
-                  const seen = new Set(prev.map((e) => `${e.time}:${e.pid}:${e.message}`))
-                  const fresh = entries.filter((e) => !seen.has(`${e.time}:${e.pid}:${e.message}`))
-                  const next = [...prev, ...fresh]
-                  return next.length > 500 ? next.slice(-500) : next
-                })
-                sinceRef.current = entries[entries.length - 1].time
+                actions.appendLog(entries)
+                actions.setLogSince(entries[entries.length - 1].time)
               }
             }).catch(() => { /* transient poll errors are ignored */ })
           }, 1500)
           return () => clearInterval(timer)
-        }, [selected, logPaused])
+        }, [st.selected, st.logPaused]) // eslint-disable-line react-hooks/exhaustive-deps
 
         React.useEffect(() => {
           const el = logRef.current
-          if (el && logAuto) el.scrollTop = el.scrollHeight
-        }, [logEntries, logAuto])
+          if (el && st.logAuto) el.scrollTop = el.scrollHeight
+        }, [st.logEntries, st.logAuto])
 
         const snapshotRows = []
-        if (snapshot) {
-          const m = snapshot.meminfo; const g = snapshot.gfxinfo; const b = snapshot.battery
-          if (m) snapshotRows.push(['内存 PSS (KB)', m.totalPssKb], ['内存 RSS (KB)', m.totalRssKb], ['Java Heap (KB)', m.javaHeapKb], ['Native Heap (KB)', m.nativeHeapKb])
-          if (g) snapshotRows.push(['总帧数', g.totalFrames], ['卡顿帧 / %', `${g.jankyFrames} / ${g.jankyPercent}%`], ['P50/P90 (ms)', `${g.percentile50Ms} / ${g.percentile90Ms}`], ['P95/P99 (ms)', `${g.percentile95Ms} / ${g.percentile99Ms}`])
-          if (b) snapshotRows.push(['电量', `${b.levelPercent}%`], ['温度 (°C)', b.temperatureC])
+        if (st.snapshot) {
+          const m = st.snapshot.meminfo; const g = st.snapshot.gfxinfo; const b = st.snapshot.battery
+          if (m) snapshotRows.push([t('memPss'), m.totalPssKb], [t('memRss'), m.totalRssKb], [t('javaHeap'), m.javaHeapKb], [t('nativeHeap'), m.nativeHeapKb])
+          if (g) snapshotRows.push([t('frames'), g.totalFrames], [t('janky'), `${g.jankyFrames} / ${g.jankyPercent}%`], [t('p50p90'), `${g.percentile50Ms} / ${g.percentile90Ms}`], [t('p95p99'), `${g.percentile95Ms} / ${g.percentile99Ms}`])
+          if (b) snapshotRows.push([t('battery'), `${b.levelPercent}%`], [t('temp'), b.temperatureC])
         }
-        const infoRows = info
-          ? [['型号', info.model], ['厂商', info.manufacturer], ['Android', info.release], ['API', info.sdk], ['分辨率', info.resolution], ['内存总量', info.memTotalKb ? `${Math.round(info.memTotalKb / 1024)} MB` : undefined]].filter((r) => r[1] !== undefined && r[1] !== null)
+        const infoRows = st.info
+          ? [[t('model'), st.info.model], [t('manufacturer'), st.info.manufacturer], [t('android'), st.info.release], [t('api'), st.info.sdk], [t('resolution'), st.info.resolution], [t('memTotal'), st.info.memTotalKb ? `${Math.round(st.info.memTotalKb / 1024)} MB` : undefined]].filter((r) => r[1] !== undefined && r[1] !== null)
           : []
 
-        const pidsLabel = logPids.length > 0 ? ` · pid=${logPids.join(',')}` : ''
+        const pidsLabel = st.logPids.length > 0 ? ` · ${t('pid')}${st.logPids.join(',')}` : ''
+        const statusText = `${t('shownCount').replace('{n}', String(st.logEntries.length))}${st.logPkg ? ` · ${t('pkg')}${st.logPkg}` : ''}${pidsLabel}${st.logPaused ? ` · ${t('paused')}` : ` · ${t('refreshing')}`}`
 
         return h('div', { style: { padding: 12, fontFamily: 'inherit', fontSize: 13 } },
           h('div', { style: { ...ROW, justifyContent: 'space-between' } },
-            h('strong', null, 'ADB 设备'),
-            h('button', { style: BTN, onClick: refresh, disabled: busy }, busy ? '…' : '刷新'),
+            h('strong', null, t('panel.title')),
+            h('button', { style: BTN, onClick: refresh, disabled: busy }, busy ? '…' : t('refresh')),
           ),
-          error !== null && h('div', { style: { color: '#e5484d', margin: '6px 0', wordBreak: 'break-all' } }, String(error)),
-          devices.length === 0
-            ? h('div', { style: { color: 'var(--dsh-text-secondary, #888)', margin: '8px 0' } }, '未连接设备')
-            : h('div', null, devices.map((d) =>
+          st.error !== null && h('div', { style: { color: '#e5484d', margin: '6px 0', wordBreak: 'break-all' } }, String(st.error)),
+          st.devices.length === 0
+            ? h('div', { style: { color: 'var(--dsh-text-secondary, #888)', margin: '8px 0' } }, t('noDevices'))
+            : h('div', null, st.devices.map((d) =>
                 h('button', {
                   key: d.serial,
                   onClick: () => selectDevice(d),
                   style: { ...BTN, display: 'block', width: '100%', textAlign: 'left', margin: '2px 0',
-                    background: selected && selected.serial === d.serial ? 'var(--dsh-accent-soft, rgba(66,133,244,.15))' : 'transparent' },
+                    background: st.selected && st.selected.serial === d.serial ? 'var(--dsh-accent-soft, rgba(66,133,244,.15))' : 'transparent' },
                 }, `${d.serial} · ${d.state}${d.model ? ' · ' + d.model : ''}`),
               )),
 
           adbActivity.length > 0 && h('div', { style: SECTION },
-            h('strong', null, 'agent 的 adb 操作'),
+            h('strong', null, t('agentActivity')),
             h('div', { style: { marginTop: 4, fontSize: 12, color: 'var(--dsh-text-secondary, #888)' } },
               adbActivity.map((a, i) => h('div', { key: `${a.name}-${i}` }, `• ${a.name}${a.time ? '  @ ' + a.time : ''}`))),
           ),
 
-          selected !== null && h('div', { style: { marginTop: 14 } },
-            info !== null && infoRows.length > 0 && h('div', { style: SECTION },
-              h('strong', null, '设备信息'),
+          st.selected !== null && h('div', { style: { marginTop: 14 } },
+            st.info !== null && infoRows.length > 0 && h('div', { style: SECTION },
+              h('strong', null, t('deviceInfo')),
               h(MetricRows, { rows: infoRows }),
             ),
 
             h('div', { style: SECTION },
               h('div', { style: ROW },
-                h('label', null, '包名'),
-                h(PackageCombobox, { packages, value: pkg, placeholder: '输入或选择包名', onChange: (name) => setPkg(name) }),
-                h('button', { style: BTN, onClick: runSnapshot, disabled: busy }, '性能快照'),
-                snapshot && h('button', { style: BTN, onClick: () => sendToChat(formatSnapshotBlock(snapshot)) }, '发送到对话'),
+                h('label', null, t('package')),
+                h(PackageCombobox, { packages: st.packages, value: st.pkg, placeholder: t('packagePlaceholder'), onChange: (name) => actions.setPkg(name) }),
+                h('button', { style: BTN, onClick: runSnapshot, disabled: busy }, t('snapshot')),
+                st.snapshot && h('button', { style: BTN, onClick: () => sendToChat(formatSnapshotBlock(st.snapshot)) }, t('sendToChat')),
               ),
-              snapshot && h('div', { style: { marginTop: 8 } }, h(MetricRows, { rows: snapshotRows })),
+              st.snapshot && h('div', { style: { marginTop: 8 } }, h(MetricRows, { rows: snapshotRows })),
 
-              processes.length > 0 && h('div', { style: { marginTop: 8 } },
-                h('div', { style: { color: 'var(--dsh-text-secondary, #888)' } }, `进程（${processes.length}）— 点击按 pid 过滤 logcat`),
+              st.processes.length > 0 && h('div', { style: { marginTop: 8 } },
+                h('div', { style: { color: 'var(--dsh-text-secondary, #888)' } }, t('processes').replace('{n}', String(st.processes.length))),
                 h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 4 } },
-                  processes.map((p) => {
-                    const active = logPids.length === 1 && logPids[0] === p.pid
+                  st.processes.map((p) => {
+                    const active = st.logPids.length === 1 && st.logPids[0] === p.pid
                     return h('button', {
                       key: p.pid,
-                      onClick: () => {
-                        const next = active ? [] : [p.pid]
-                        setLogPids(next); applyLogFilters(logLevel, logKeyword, next)
-                      },
+                      onClick: () => { const next = active ? [] : [p.pid]; applyLogFilters(st.logLevel, st.logKeyword, next) },
                       style: { ...BTN, fontSize: 11, background: active ? 'var(--dsh-accent-soft, rgba(66,133,244,.15))' : 'transparent' },
                     }, `${p.pid} ${p.name}`)
                   })),
@@ -343,24 +376,23 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
 
             h('div', { style: SECTION },
               h('div', { style: ROW },
-                h('label', null, 'logcat'),
-                h('select', { style: INPUT, value: logLevel, onChange: (e) => { setLogLevel(e.target.value); applyLogFilters(e.target.value, logKeyword, logPids) } },
+                h('label', null, t('logcat')),
+                h('select', { style: INPUT, value: st.logLevel, onChange: (e) => applyLogFilters(e.target.value, st.logKeyword, st.logPids) },
                   ['V', 'D', 'I', 'W', 'E', 'F'].map((lv) => h('option', { key: lv, value: lv }, lv))),
-                h('input', { style: { ...INPUT, minWidth: 130 }, placeholder: '关键字过滤', value: logKeyword, onChange: (e) => { setLogKeyword(e.target.value); applyLogFilters(logLevel, e.target.value, logPids) } }),
+                h('input', { style: { ...INPUT, minWidth: 130 }, placeholder: t('keywordFilter'), value: st.logKeyword, onChange: (e) => applyLogFilters(st.logLevel, e.target.value, st.logPids) }),
                 h('div', { style: { flex: 1, minWidth: 180 } },
-                  h(PackageCombobox, { packages, value: logPkg, placeholder: logPkg || '包名过滤（按进程）', onChange: applyPackageFilter })),
-                h('button', { style: BTN, onClick: () => setLogPaused(!logPaused) }, logPaused ? '继续' : '暂停'),
-                h('button', { style: BTN, onClick: () => { setLogEntries([]); sinceRef.current = '' } }, '清空'),
-                h('button', { style: BTN, onClick: () => sendToChat(formatLogcatBlock(logEntries)), disabled: logEntries.length === 0 }, '发送到对话'),
+                  h(PackageCombobox, { packages: st.packages, value: st.logPkg, placeholder: st.logPkg || t('packageFilter'), onChange: applyPackageFilter })),
+                h('button', { style: BTN, onClick: () => actions.setLogPaused(!st.logPaused) }, st.logPaused ? t('resume') : t('pause')),
+                h('button', { style: BTN, onClick: () => actions.clearLog() }, t('clear')),
+                h('button', { style: BTN, onClick: () => sendToChat(formatLogcatBlock(st.logEntries)), disabled: st.logEntries.length === 0 }, t('sendToChat')),
                 h('label', { style: { fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 } },
-                  h('input', { type: 'checkbox', checked: logAuto, onChange: (e) => setLogAuto(e.target.checked) }), ' 自动滚动'),
+                  h('input', { type: 'checkbox', checked: st.logAuto, onChange: (e) => actions.setLogAuto(e.target.checked) }), ' ', t('autoScroll')),
               ),
-              h('div', { style: { color: 'var(--dsh-text-secondary, #888)', margin: '4px 0', fontSize: 12 } },
-                `已显示 ${logEntries.length} 条${logPkg ? ` · 包=${logPkg}` : ''}${pidsLabel}${logPaused ? ' · 已暂停' : ' · 每 1.5s 增量刷新'}`),
+              h('div', { style: { color: 'var(--dsh-text-secondary, #888)', margin: '4px 0', fontSize: 12 } }, statusText),
               h('div', { ref: logRef, style: { maxHeight: 300, overflowY: 'auto', fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap', border: '1px solid var(--dsh-border, #ccc)', padding: 6 } },
-                logEntries.length === 0
-                  ? h('div', { style: { color: 'var(--dsh-text-secondary, #888)' } }, '（等待日志…）')
-                  : logEntries.map((e) => h('div', { key: `${e.time}-${e.pid}-${e.tid}-${e.message}` },
+                st.logEntries.length === 0
+                  ? h('div', { style: { color: 'var(--dsh-text-secondary, #888)' } }, t('waitingLog'))
+                  : st.logEntries.map((e) => h('div', { key: `${e.time}-${e.pid}-${e.tid}-${e.message}` },
                       `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`))),
             ),
           ),
@@ -372,8 +404,57 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
         const connection = ctx.get('connection')
         if (slots === undefined || connection === undefined || connection.rpc === undefined) return
         const runtime = createRuntime(connection.rpc)
+
+        // i18n: register the panel dictionary under the harness locale system.
+        const locale = ctx.get('locale')
+        if (locale && typeof locale.register === 'function') {
+          ctx.effect(() => locale.register('dsh-adb', DICTIONARY))
+        }
+
+        // Store: declared at register, so state survives view tab switches.
+        const panelStore = defineStore({
+          init: () => ({
+            devices: [], selected: null, info: null, packages: [], pkg: 'com.android.systemui',
+            snapshot: null, processes: [], logEntries: [], logSince: '',
+            logLevel: 'V', logKeyword: '', logPkg: '', logPids: [], logPaused: false, logAuto: true, error: null,
+          }),
+          actions: {
+            setDevices: (d, v) => { d.devices = v },
+            setSelected: (d, v) => { d.selected = v },
+            setInfo: (d, v) => { d.info = v },
+            setPackages: (d, v) => { d.packages = v },
+            setPkg: (d, v) => { d.pkg = v },
+            setSnapshot: (d, v) => { d.snapshot = v },
+            setProcesses: (d, v) => { d.processes = v },
+            setError: (d, v) => { d.error = v },
+            appendLog: (d, entries) => {
+              const seen = new Set(d.logEntries.map((e) => `${e.time}:${e.pid}:${e.message}`))
+              const fresh = entries.filter((e) => !seen.has(`${e.time}:${e.pid}:${e.message}`))
+              d.logEntries = [...d.logEntries, ...fresh].slice(-500)
+            },
+            setLogSince: (d, v) => { d.logSince = v },
+            setLogLevel: (d, v) => { d.logLevel = v },
+            setLogKeyword: (d, v) => { d.logKeyword = v },
+            setLogPkg: (d, v) => { d.logPkg = v },
+            setLogPids: (d, v) => { d.logPids = v },
+            setLogPaused: (d, v) => { d.logPaused = v },
+            setLogAuto: (d, v) => { d.logAuto = v },
+            clearLog: (d) => { d.logEntries = []; d.logSince = '' },
+          },
+        })
+
         slots.inject('conversation.view', () => slots.register(
-          { name: 'conversation.view', id: 'devices', order: 30, label: '设备' },
+          {
+            name: 'conversation.view',
+            id: 'devices',
+            order: 30,
+            label: () => {
+              const loc = ctx.get('locale')
+              return loc && typeof loc.getLocale === 'function' && loc.getLocale().active === 'en' ? 'Devices' : '设备'
+            },
+            store: panelStore,
+            locale: 'dsh-adb',
+          },
           (props) => h(DeviceView, { ...props, runtime }),
         ))
       }
@@ -383,5 +464,5 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
     },
   })
 } else if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf }
+  module.exports = { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf, DICTIONARY }
 }
