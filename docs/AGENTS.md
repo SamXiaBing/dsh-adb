@@ -39,6 +39,7 @@ npm publish --//registry.npmjs.org/:_authToken=<token>   # 发布（token 不落
 6. **错误码稳定**：`classifyFailure` 输出的错误码是模型可见契约，只增不改。新增匹配须考虑真实 adb 输出的前缀差异（`adb.exe: device 'X' not found` 无 `error:` 前缀）。
 7. **不写机密**：文档/代码中不得出现 API key、token。凭据只引用文件路径（如 `~/.dsh/.credentials.yaml`）。
 8. **版本发布**：修复 bug 必须 bump 版本并重新发布（历史版本在 npm 上无法撤回使用方升级）。发布用 bypass-2FA 的 granular token，用命令参数传入，不写进任何配置文件。
+9. **client.js 必须 `require('react')`**：静态 bundle 的 client 代码跑在 `__ModuleLoader__.load` 的 factory 里，**`React` 不是裸全局**（那是动态包才有的 builtin）。factory 顶部必须 `const React = require('react')`——v1.1 重写时漏掉导致 ReferenceError、harness 加载失败（见 DEVELOPMENT-LOG）。重写 client.js 后先 grep 确认 `require('react')` 还在。
 
 ## 环境事实（本工作区已知）
 

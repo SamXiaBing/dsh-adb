@@ -32,6 +32,7 @@
 - **npm 发布**：账号开 2FA 后，classic token 发布会被拒（E403 要求 bypass 2FA）；需 granular token 勾选 "Bypass 2FA when publishing"。token 用命令参数 `npm publish --//registry.npmjs.org/:_authToken=<token>` 传入，不落盘。
 - **headless 冒烟要点**：`dsh-base` 只是核心基建（无 agent-loop），跑任务必须加 `@deepseek-ai/dsh-headless` bundle；模型凭据在 `~/.dsh/.credentials.yaml`（不在 settings.yaml）；会话日志在 `~/.dsh/sessions`。
 - **psql/pwsh 工具边界**：每条 pwsh 命令是全新进程（无持久 cwd，必须传 workdir 或命令内 Set-Location）；忘记 Set-Location 会把 clone 落进默认工作目录（污染 harness checkout，已清理）。
+- **client.js 的 React 全局陷阱（v1.1 事故）**：我假设静态 bundle 的 client 代码能用裸 `React` 全局（误读了 client Builtin 列表——那是动态包才有）。实际静态 bundle 跑在 `__ModuleLoader__.load` 的 factory 里，必须 `const React = require('react')`。v1.1 整份重写 client.js 时漏掉了这行 → ReferenceError → client 插件加载失败 → harness 无法载入。由用户在外部会话修复（加回 require），教训：重写 client.js 后必须 grep 确认 `require('react')` 存在；这一行是命脉，AGENTS.md 已列为铁律。
 
 ## 生态经验（DSH 三方插件市场）
 
