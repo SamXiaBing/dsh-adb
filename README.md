@@ -16,7 +16,7 @@ Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing
 
 ## Web device panel (v1.1.0)
 
-A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/pid filters, pause/clear/auto-scroll), device info card, process list, perf sampling curve (PSS/battery), one-click screenshot preview, and performance snapshot. Data flows over the package RPC channel; requires the plugin installed in a web profile and a GUI restart.
+A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/package/pid filters, pause/clear/auto-scroll), device info card, process list, and performance snapshot — plus harness synergy: **send any logcat/snapshot to the conversation** (the agent analyzes it), a live strip of the agent's adb operations, and a registered **crash-analysis skill** (`dsh-adb-crash-analysis`) for automation pipelines. Data flows over the package RPC channel; install into a web profile and restart the GUI (see `scripts/restart-web.ps1` for a one-click restart).
 
 ## Ecosystem
 

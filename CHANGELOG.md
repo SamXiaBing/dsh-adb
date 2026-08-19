@@ -6,11 +6,18 @@
 
 **Added（设备面板增强，对照 Android Studio 能力面）**：
 - 包名输入改为**下拉 + 模糊搜索**自动补全（`pm list packages`）
-- **实时 logcat 窗口**：1.5s 增量轮询（`logcatDelta` 按 since 只拉新增）、级别/关键字/进程过滤、暂停/清空/自动滚动
+- **实时 logcat 窗口**：1.5s 增量轮询（`logcatDelta` 按 since 只拉新增）、级别/关键字/进程/包名过滤、暂停/清空/自动滚动
 - 设备信息卡（型号/厂商/Android/API/分辨率/内存总量）
 - 进程列表（按包过滤，点击按 pid 过滤 logcat）
-- 性能采样曲线（每 3s 采 PSS/电量 → SVG 折线，Profiler-lite）
-- 一键截图预览（screencap → pull → base64）
+- **harness 协同（面板定位的核心）**：
+  - 每段数据（logcat/快照）加「**发送到对话**」按钮 → 写入会话输入框，agent 接着分析（`inputActions.setDraft`）
+  - **agent 的 adb 操作实时显示**在面板顶部（订阅会话快照的 tool-call 节点）
+  - **崩溃分析 skill**（`dsh-adb-crash-analysis`，host 注册）：采集崩溃现场 → 结构化报告，可与 dsh-automation 组定时流水线
+- **scripts/restart-web.ps1**：一键重启（杀 dsh web 进程树 → 重启 start-dsh-web.bat → 等服务就绪 → 打开页面）
+
+**Review 调整**：按用户评审移除采样曲线/截图 UI（无协同价值，RPC 端点保留）；下拉改独立 query 态 + 显式对比色；关键字过滤旁加包名过滤。
+
+**Verified**：单测 36 全绿（新增 panel 纯函数 4 例 + skill 3 例）。**GUI 验收待用户重启后确认**。
 
 **Changed**：RPC 新增 6 个端点（listPackages/deviceInfo/processList/logcatDelta/screenshot/perfSample），`logcatTail` 保留兼容。
 

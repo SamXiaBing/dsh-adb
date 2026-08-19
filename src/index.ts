@@ -10,6 +10,7 @@ import { registerLogcatTool } from './tools/logcat.js'
 import { registerPerfTool } from './tools/perf.js'
 import { registerPerfBaselineTool } from './tools/perf-baseline.js'
 import { registerRpc } from './rpc.js'
+import { registerSkills } from './skill.js'
 
 export const name = 'dsh-adb'
 
@@ -44,6 +45,7 @@ export function apply(ctx: Context, config: Config): void {
   registerPerfTool(ctx, cfg)
   registerPerfBaselineTool(ctx, cfg, config.baselineDir ?? DEFAULT_BASELINE_DIR)
   registerCrashReportTool(ctx, cfg)
+  registerSkills(ctx)
   // The RPC channel needs the client connection, which mounts after this
   // plugin starts in web compositions; register lazily so headless profiles
   // (no connection) stay unaffected.
