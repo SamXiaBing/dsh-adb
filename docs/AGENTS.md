@@ -25,9 +25,17 @@ dsh-adb/
 
 ```sh
 npm run build          # tsc → lib/
-npm test               # build + node --test（当前 9 用例）
+npm test               # build + node --test（当前 56 用例）
 npm publish --//registry.npmjs.org/:_authToken=<token>   # 发布（token 不落盘）
 ```
+
+## 发布流程（npm + GitHub Release，每次发布照此执行）
+
+1. **改代码 + 测试**：`npm test` 全绿；README 双语（README.md / README.zh-CN.md）与 CHANGELOG 同步更新。
+2. **提交推送**：git 提交 + `git push ssh://git@github.com:22/SamXiaBing/dsh-adb.git HEAD:main`。
+3. **打 tag**：`git tag vX.Y.Z` 指向发布提交，`git push --tags`。
+4. **npm 发布**：`npm publish --//registry.npmjs.org/:_authToken=<bypass-2FA token>`（token 命令参数传入，不落盘）。
+5. **GitHub Release**：`gh release create vX.Y.Z --title ... --notes ...`，正文从 CHANGELOG 对应条目提炼（中英双语短版），并 `gh release edit vX.Y.Z --latest` 确保 Latest 指向新版本（gh 默认把第一个创建的当 Latest，多版本并存时必须显式设）。
 
 ## 铁律（改代码前必读）
 
@@ -57,5 +65,6 @@ npm publish --//registry.npmjs.org/:_authToken=<token>   # 发布（token 不落
 - [README.md](../README.md)：对外入口（安装/工具表/覆盖率矩阵/生态状态）
 - [REQUIREMENTS.md](REQUIREMENTS.md)：目的/范围/非目标/验收标准
 - [TESTING.md](TESTING.md)：测试哲学、方法、E2E 运行步骤、回归清单
-- [DEVELOPMENT-LOG.md](DEVELOPMENT-LOG.md)：进度时间线、4 个已修复 bug 的完整教训、环境与生态经验
-- [PLAN.md](../PLAN.md)：里程碑与待办（当前状态：v0.1.4，v1.0 候选=性能基线对比+设备面板）
+- [DEVELOPMENT-LOG.md](DEVELOPMENT-LOG.md)：进度时间线、已修复 bug 的完整教训、环境与生态经验
+- [ROADMAP.md](ROADMAP.md)：harness×adb 协同功能路线图（9 条，含台架自动化测试）
+- [PLAN.md](../PLAN.md)：里程碑与待办（当前状态：v1.2.0 已发布）
