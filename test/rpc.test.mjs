@@ -200,7 +200,11 @@ test('rpc deviceReport collects all sections and persists', async () => {
     assert.equal(value.device.resolution, '1080x2400')
     assert.equal(value.device.memTotalKb, 1234567)
     assert.equal(value.crashBuffer.total, 2)
+    assert.equal(value.crashBuffer.realCrashCount, 1) // Fatal signal only; backtrace is following
     assert.equal(value.logcat.total, 3) // W/E/F only from the main buffer
+    assert.ok(value.health !== undefined, 'health summary is included')
+    assert.equal(value.health.verdict, 'attention') // the fatal signal drives attention
+    assert.ok(value.health.issues.some((issue) => issue.includes('真实崩溃')))
     assert.ok(value.topProcesses === undefined || Array.isArray(value.topProcesses))
     assert.ok(value.storage.excerpt.includes('/data'))
     assert.deepEqual(value.errors, [])

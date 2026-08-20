@@ -59,6 +59,7 @@ function formatSnapshotBlock(snapshot) {
 function formatReportBlock(report) {
   if (!report || typeof report !== 'object') return '（无体检报告数据）'
   const lines = []
+  const health = report.health
   const d = report.device
   if (d) {
     const parts = [d.model, d.manufacturer, `Android ${d.release ?? '?'}`].filter(Boolean)
@@ -69,27 +70,40 @@ function formatReportBlock(report) {
   } else {
     lines.push(`设备：${report.serial || '未知'}`)
   }
-  const cb = report.crashBuffer
-  const lg = report.logcat
-  lines.push(`崩溃缓冲：${cb ? cb.total : 0} 条`)
-  lines.push(`W/E/F 日志：${lg ? lg.total : 0} 条`)
-  if (Array.isArray(report.topProcesses) || Array.isArray(report.processes)) {
-    const procs = report.topProcesses ?? report.processes
-    lines.push(`Top 进程：${procs.map((p) => `${p.name}(${p.rss}KB)`).join(', ')}`)
+  if (health) {
+    lines.push(`体检结论：${health.verdict === 'attention' ? '需关注' : '正常'}`)
+    for (const line of health.lines) lines.push(`- ${line}`)
+    if (health.issues && health.issues.length > 0) {
+      lines.push('关注项：')
+      for (const issue of health.issues) lines.push(`- ⚠ ${issue}`)
+    }
+  } else {
+    const cb = report.crashBuffer
+    const lg = report.logcat
+    lines.push(`崩溃缓冲：${cb ? cb.total : 0} 条`)
+    lines.push(`W/E/F 日志：${lg ? lg.total : 0} 条`)
   }
   if (Array.isArray(report.errors) && report.errors.length > 0) {
     lines.push(`采集失败：${report.errors.map((e) => `${e.section}: ${e.message}`).join('; ')}`)
   }
   lines.push(`采集时间：${report.collectedAt ?? '未知'}`)
-  if (lg && lg.entries && lg.entries.length > 0) {
-    lines.push('', '关键 W/E/F 日志：', '```log',
-      ...lg.entries.map((e) => `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`),
-      '```')
+  // Evidence: only real crash chains, not the whole (mostly boot-marker) buffer.
+  if (report.crashBuffer && report.crashBuffer.chains && report.crashBuffer.chains.length > 0) {
+    lines.push('', '真实崩溃堆栈：')
+    for (const chain of report.crashBuffer.chains) {
+      lines.push('```log',
+        `${chain.signature.time} ${chain.signature.pid} ${chain.signature.tid} ${chain.signature.level} ${chain.signature.tag}: ${chain.signature.message}`,
+        ...(chain.following || []).map((e) => `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`),
+        '```')
+    }
   }
-  if (cb && cb.entries && cb.entries.length > 0) {
-    lines.push('', '崩溃缓冲（最近）：', '```log',
-      ...cb.entries.map((e) => `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`),
-      '```')
+  // Evidence: top logcat noise sources with one sample each.
+  if (report.logcat && report.logcat.byTag && report.logcat.byTag.length > 0) {
+    lines.push('', 'W/E/F 主要来源（样本）：')
+    for (const agg of report.logcat.byTag.slice(0, 5)) {
+      const s = agg.sample
+      lines.push(`- ${agg.tag}(${agg.level}) ×${agg.count}：${s.time} ${s.pid} ${s.tid} ${s.tag}: ${s.message}`)
+    }
   }
   return ['以下是从设备面板生成的一键体检报告，请结合 dsh-adb-crash-analysis 技能分析设备健康状态：', ...lines].join('\n')
 }
@@ -127,6 +141,8 @@ const DICTIONARY = {
     'report': '一键体检', 'reportRunning': '采集中…', 'reportDevice': '设备',
     'reportCrash': '崩溃缓冲', 'reportLogcat': 'W/E/F 日志', 'reportProcesses': 'Top 进程',
     'reportErrors': '采集失败', 'reportTime': '采集时间', 'reportSaved': '已保存',
+    'reportVerdict': '体检结论', 'reportVerdictOk': '正常', 'reportVerdictAttention': '需关注',
+    'reportSignals': '关注项',
   },
   en: {
     'panel.title': 'ADB Devices',
@@ -159,6 +175,8 @@ const DICTIONARY = {
     'report': 'Health report', 'reportRunning': 'collecting…', 'reportDevice': 'Device',
     'reportCrash': 'Crash buffer', 'reportLogcat': 'W/E/F logs', 'reportProcesses': 'Top processes',
     'reportErrors': 'Collection errors', 'reportTime': 'Collected at', 'reportSaved': 'Saved',
+    'reportVerdict': 'Health', 'reportVerdictOk': 'OK', 'reportVerdictAttention': 'needs attention',
+    'reportSignals': 'Concerns',
   },
 }
 
@@ -378,15 +396,23 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
         const reportRows = []
         if (st.report) {
           const r = st.report
+          if (r.health) {
+            reportRows.push([t('reportVerdict'), r.health.verdict === 'attention' ? t('reportVerdictAttention') : t('reportVerdictOk')])
+            if (r.health.issues && r.health.issues.length > 0) {
+              reportRows.push([t('reportSignals'), r.health.issues.length])
+            }
+          }
           if (r.device) {
             const parts = [r.device.model, r.device.release, r.device.sdk ? `API ${r.device.sdk}` : r.device.sdk].filter(Boolean)
             reportRows.push([t('reportDevice'), parts.join(' · ')])
           }
-          reportRows.push([t('reportCrash'), r.crashBuffer ? `${r.crashBuffer.total} 条` : '0 条'])
-          reportRows.push([t('reportLogcat'), r.logcat ? `${r.logcat.total} 条` : '0 条'])
-          if (Array.isArray(r.topProcesses) || Array.isArray(r.processes)) {
-            const procs = r.topProcesses ?? r.processes
-            reportRows.push([t('reportProcesses'), procs.slice(0, 5).map((p) => `${p.name}(${p.rss}KB)`).join(', ')])
+          if (r.crashBuffer) {
+            const cb = r.crashBuffer
+            reportRows.push([t('reportCrash'), `${cb.realCrashCount} 真实${cb.bootMarkerCount > 0 ? ` + ${cb.bootMarkerCount} 启动标记` : ''} / ${cb.total} 条`])
+          }
+          if (r.logcat && r.logcat.byTag && r.logcat.byTag.length > 0) {
+            const top = r.logcat.byTag[0]
+            reportRows.push([t('reportLogcat'), `${r.logcat.total} 条 · ${top.tag} ×${top.count}`])
           }
           if (Array.isArray(r.errors) && r.errors.length > 0) {
             reportRows.push([t('reportErrors'), r.errors.length])

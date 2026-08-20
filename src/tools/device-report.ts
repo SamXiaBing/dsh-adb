@@ -20,7 +20,7 @@ interface DeviceReportArgs {
 export function registerDeviceReportTool(ctx: Context, cfg: AdbConfig, reportDir: string): void {
   ctx.tools.register({
     name: 'adb_device_report',
-    description: 'One-click device health report: collect device identity, top memory processes, the crash buffer, the warning/error logcat window, and storage usage into one structured snapshot, persist it to the report store, and return it. Each section degrades independently — a failing section lands in errors instead of failing the whole report. Pair the result with the dsh-adb-crash-analysis skill to diagnose the device state.',
+    description: 'One-click device health report: collect device identity, top memory processes, the crash buffer (classified into real crashes vs. boot markers, with stack chains), the warning/error logcat window (aggregated by tag), storage usage, and a compact health summary (verdict + issues) into one structured snapshot, persist it to the report store, and return it. Each section degrades independently — a failing section lands in errors instead of failing the whole report. Pair the result with the dsh-adb-crash-analysis skill to diagnose the device state.',
     parameters: {
       type: 'object',
       additionalProperties: false,
@@ -51,6 +51,7 @@ export function registerDeviceReportTool(ctx: Context, cfg: AdbConfig, reportDir
         ...(report.crashBuffer !== undefined ? { crashBuffer: report.crashBuffer } : {}),
         ...(report.logcat !== undefined ? { logcat: report.logcat } : {}),
         ...(report.storage !== undefined ? { storage: report.storage } : {}),
+        ...(report.health !== undefined ? { health: report.health } : {}),
         errors: report.errors,
         ...(saved !== undefined ? { savedTo: saved.file } : {}),
       }

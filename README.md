@@ -16,7 +16,7 @@ Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing
 
 ## Web device panel (v1.1.0)
 
-A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/package/pid filters, pause/clear/auto-scroll), device info card, process list, performance snapshot, and a **one-click health report** (设备体检: device identity, top-RSS processes, crash buffer, W/E/F logcat window, storage — persisted under `reportDir`, sendable to the conversation for diagnosis) — plus harness synergy: **send any logcat/snapshot/report to the conversation** (the agent analyzes it), a live strip of the agent's adb operations, and a registered **crash-analysis skill** (`dsh-adb-crash-analysis`) for automation pipelines. Data flows over the package RPC channel; install into a web profile and restart the GUI (see `scripts/restart-web.ps1` for a one-click restart).
+A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/package/pid filters, pause/clear/auto-scroll), device info card, process list, performance snapshot, and a **one-click health report** (设备体检: device identity, top-RSS processes, crash buffer, W/E/F logcat window, storage — persisted under `reportDir`, sendable to the conversation for diagnosis). The report turns raw evidence into signal before it reaches the model: crash-buffer entries are classified into **real crashes (with stack chains) vs. MediaTek boot markers**, repetitive logcat is **aggregated by tag** ("AOSP-MdnsDiscoveryManag ×3264" instead of 3k identical lines), and a compact **health summary** (verdict + issues) is attached — so the agent reasons from conclusions, not 17k raw lines. Plus harness synergy: **send any logcat/snapshot/report to the conversation** (the agent analyzes it), a live strip of the agent's adb operations, and a registered **crash-analysis skill** (`dsh-adb-crash-analysis`) for automation pipelines. Data flows over the package RPC channel; install into a web profile and restart the GUI (see `scripts/restart-web.ps1` for a one-click restart).
 
 ## Ecosystem
 
@@ -39,7 +39,7 @@ Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_perf_snapshot` | Structured `dumpsys meminfo / gfxinfo / battery` snapshots (PSS, frame percentiles, jank rate, battery) |
 | `adb_perf_baseline` | Perf regression: save a snapshot as a baseline (label/tags), compare current state and get a numeric diff (PSS, janky %, percentiles), list/delete baselines (stored locally under `baselineDir`) |
 | `adb_crash_report` | One-call crash scene: parsed logcat crash buffer + dropbox excerpt + process state + memory summary |
-| `adb_device_report` | One-click health report: device identity + top-RSS processes + crash buffer + W/E/F logcat window + storage; each section degrades independently; persisted under `reportDir` |
+| `adb_device_report` | One-click health report: device identity + top-RSS processes + crash buffer (real crashes w/ stacks vs. boot markers) + W/E/F logcat aggregated by tag + storage + health verdict; each section degrades independently; persisted under `reportDir` |
 
 Errors are structured `AdbError` with stable codes: `ADB_NOT_FOUND`, `ADB_UNAVAILABLE`, `DEVICE_NOT_FOUND`, `NO_DEVICES`, `CONNECT_FAILED`, `INSTALL_FAILED`, `ADB_EXIT_<code>`, etc.
 

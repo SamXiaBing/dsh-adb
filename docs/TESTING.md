@@ -8,9 +8,9 @@
 
 ## 三层测试
 
-### 1. 单元测试（node --test，当前 9 用例）
+### 1. 单元测试（node --test，当前 56 用例）
 
-`test/parsers.test.mjs`：解析器（devices/logcat/meminfo/gfxinfo/battery）、logcat 过滤助手、`classifyFailure` 错误分类（含无 `error:` 前缀的 DEVICE_NOT_FOUND 用例）。
+`test/*.test.mjs`：解析器（devices/logcat/meminfo/gfxinfo/battery/sysinfo）、logcat 过滤助手、`classifyFailure` 错误分类、baseline 存储/diff、RPC 端点（假 adb 后端注入）、面板纯函数（formatLogcatBlock/formatSnapshotBlock/formatReportBlock/agent 活动提取）、体检报告（崩溃分类/日志聚合/健康摘要，纯函数 + 采集集成）、报告存储、skill 注册。
 
 ```sh
 npm test   # = npm run build && node --test "test/*.test.mjs"

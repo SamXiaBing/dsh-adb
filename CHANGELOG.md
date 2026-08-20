@@ -7,11 +7,17 @@
 **Added（一键体检，ROADMAP ①）**：
 - **`adb_device_report` 工具**：一键采集设备信息（型号/厂商/版本/API/指纹/分辨率/内存）、Top RSS 进程、崩溃缓冲、W/E/F logcat 窗口、存储用量；每节独立降级（失败进 `errors`，不整体失败）；报告落盘到报告存储（`reportDir`，缺省 `<baselineDir>/reports`，`<serial>--<epoch>.json`）。
 - **RPC `deviceReport` 端点**：面板「一键体检」按钮同源复用采集，结果含 `savedTo`。
-- **面板「一键体检」**：采集摘要展示（设备/崩溃数/W-E-F 数/Top 进程/采集失败/保存位置）+「发送到对话」写入体检报告文本块（含崩溃缓冲与 W/E/F 日志块，提示结合 crash-analysis 技能分析）。
+- **面板「一键体检」**：采集摘要展示（体检结论/设备/真实崩溃数/日志噪音源/采集失败/保存位置）+「发送到对话」写入体检报告文本块（提示结合 crash-analysis 技能分析）。
 - **`parseProcessList` 增加 `rss` 字段**（Android `ps -A` 第 4 列），体检按 RSS 排序取内存大户。
 - **功能路线图文档 [docs/ROADMAP.md](docs/ROADMAP.md)**：9 条 harness×adb 协同功能（诊断报告/崩溃归因/截图视觉/台架自动化测试/等待原语/审批/多设备对比/定时巡检/回滚台账），每条含使用场景 + harness 独有价值 + 依托机制 + 成本。台架自动化测试（脚本执行 + AI 图像比对）按用户要求排在截图视觉之后。
 
-**Verified**：单测 51 全绿（新增 14 例：报告采集 4 + 报告存储 4 + RPC deviceReport 3 + 面板 formatReportBlock 2 + rss 解析 1）。**GUI 验收待用户刷新后确认**（体检按钮/摘要/发送到对话）。
+**Evidence → Signal（评审改进，首次真机验收发现原始数字误导）**：
+- **崩溃缓冲分类**：43 条里真实崩溃只有 1 条，其余是 MediaTek 启动标记——现按 `FATAL EXCEPTION / Fatal signal / SIG*` 识别真实崩溃（含同 pid 堆栈链），`mtk-brm-*` 等单列启动标记，不再把 43 当 43。
+- **W/E/F 按 tag 聚合**：16987 条 → `AOSP-MdnsDiscoveryManag ×16200` 这类计数 + 每源一条样本行，噪音源一目了然。
+- **健康摘要（插件自产）**：`verdict`（ok/attention）+ `lines`（设备/崩溃构成/日志来源/内存大户）+ `issues`（真实崩溃、网络异常信号等），agent 从结论出发而非从原始证据出发；PowerKeeper.Thermal 类解析噪音显式标注可忽略。
+- 发送到对话的文本块同步改造：只带真实崩溃堆栈 + top 日志源样本，不再刷 17k 行。
+
+**Verified**：单测 56 全绿（新增/重写：分类/聚合/摘要纯函数 5 例 + 采集集成 4 例 + 面板 formatReportBlock 2 例）。**真机验证通过（Redmi K50 Pro）**：43 崩溃→1 真实+9 启动标记+33 其他；13361 W/E/F→top 源 AOSP-MdnsDiscoveryManag×3264/System.err×1530/ActivityManagerWrapper×545；health.verdict=attention + 2 条具体 issue。**GUI 验收待用户刷新后确认**（体检结论/摘要/发送到对话）。
 
 ## [1.1.3] - 2026-08-19
 

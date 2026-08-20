@@ -48,39 +48,68 @@ test('formatSnapshotBlock renders meminfo/gfxinfo/battery rows', () => {
   assert.match(block, /^以下是从设备面板抓取的性能快照，请分析：/)
 })
 
-test('formatReportBlock renders device summary, counts, top processes, and log blocks', () => {
+test('formatReportBlock renders health verdict, crash chains, and tag aggregates', () => {
   const report = {
     collectedAt: '2026-08-19T08:00:00.000Z',
     serial: 'abc123',
     device: { model: '22011211C', manufacturer: 'Xiaomi', release: '13', sdk: '33', resolution: '1080x2400', memTotalKb: 1234567 },
-    topProcesses: [{ name: 'com.android.systemui', pid: '1234', rss: 23456 }, { name: 'com.example.hmi', pid: '5678', rss: 8888 }],
-    crashBuffer: { total: 1, truncated: false, entries: [{ time: '08-19 07:59:00.000', pid: '1234', tid: '1', level: 'F', tag: 'libc', message: 'Fatal signal 11' }] },
-    logcat: { total: 1, truncated: false, entries: [{ time: '08-19 07:59:01.000', pid: '1234', tid: '1', level: 'E', tag: 'HmiApp', message: 'boom' }] },
+    crashBuffer: {
+      total: 43,
+      realCrashCount: 1,
+      bootMarkerCount: 42,
+      otherCount: 0,
+      chains: [{
+        signature: { time: '08-19 07:59:00.000', pid: '1234', tid: '1', level: 'F', tag: 'libc', message: 'Fatal signal 11 (SIGSEGV)' },
+        following: [{ time: '08-19 07:59:00.001', pid: '1234', tid: '1', level: 'E', tag: 'DEBUG', message: 'backtrace: #00 pc 0001' }],
+      }],
+    },
+    logcat: {
+      total: 16987,
+      byTag: [
+        { tag: 'AOSP-MdnsDiscoveryManag', level: 'W', count: 16200, sample: { time: '08-19 07:59:01.000', pid: '3562', tid: '1', level: 'W', tag: 'AOSP-MdnsDiscoveryManag', message: 'sendto failed: EPERM' } },
+        { tag: 'PowerKeeper.Thermal', level: 'E', count: 180, sample: { time: '08-19 07:59:01.100', pid: '7441', tid: '1', level: 'E', tag: 'PowerKeeper.Thermal', message: 'NumberFormatException' } },
+      ],
+    },
+    health: {
+      verdict: 'attention',
+      lines: [
+        '设备：22011211C · Android 13 · 内存 1206MB',
+        '崩溃：1 真实崩溃 + 42 启动标记 + 0 其他（共 43）',
+        'W/E/F 日志：共 16987 条，主要来源 AOSP-MdnsDiscoveryManag(W) ×16200 等 2 个来源',
+        '内存大户：com.android.systemui(23456KB), com.example.hmi(8888KB)',
+      ],
+      issues: ['真实崩溃 1 起（libc）', '网络异常信号（AOSP-MdnsDiscoveryManag: sendto failed: EPERM）'],
+    },
     errors: [],
     savedTo: 'abc123--42.json',
   }
   const block = formatReportBlock(report)
   assert.match(block, /^以下是从设备面板生成的一键体检报告/)
   assert.match(block, /22011211C · Xiaomi · Android 13 · API 33 · 1080x2400 · 内存 1206MB/)
-  assert.match(block, /崩溃缓冲：1 条/)
-  assert.match(block, /W\/E\/F 日志：1 条/)
-  assert.match(block, /com\.android\.systemui\(23456KB\)/)
-  assert.match(block, /Fatal signal 11/)
-  assert.match(block, /boom/)
+  assert.match(block, /体检结论：需关注/)
+  assert.match(block, /1 真实崩溃 \+ 42 启动标记/)
+  assert.match(block, /AOSP-MdnsDiscoveryManag\(W\) ×16200/)
+  assert.match(block, /真实崩溃堆栈：/)
+  assert.match(block, /Fatal signal 11 \(SIGSEGV\)/)
+  assert.match(block, /backtrace: #00 pc 0001/)
+  assert.match(block, /W\/E\/F 主要来源（样本）：/)
+  assert.match(block, /sendto failed: EPERM/)
+  assert.match(block, /关注项：/)
+  assert.match(block, /网络异常信号/)
   assert.equal(formatReportBlock(null), '（无体检报告数据）')
 })
 
-test('formatReportBlock surfaces per-section collection errors', () => {
+test('formatReportBlock falls back to raw counts when health is absent', () => {
   const report = {
     collectedAt: '2026-08-19T08:00:00.000Z',
     serial: 'abc123',
-    crashBuffer: { total: 0, truncated: false, entries: [] },
-    logcat: { total: 0, truncated: false, entries: [] },
+    crashBuffer: { total: 0, chains: [] },
+    logcat: { total: 0, byTag: [] },
     errors: [{ section: 'device', message: 'adb.exe: device not found' }, { section: 'storage', message: 'Permission denied' }],
   }
   const block = formatReportBlock(report)
-  assert.match(block, /采集失败：device: adb\.exe: device not found; storage: Permission denied/)
   assert.match(block, /崩溃缓冲：0 条/)
+  assert.match(block, /采集失败：device: adb\.exe: device not found; storage: Permission denied/)
 })
 
 test('extractAdbActivity filters adb_* tool-call nodes, newest last-8 reversed', () => {

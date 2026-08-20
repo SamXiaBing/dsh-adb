@@ -13,7 +13,7 @@ harness × adb 协同功能路线图。每个功能标注：**使用场景**、*
 - **使用场景**：QA 拿到一台异常设备，想知道「这台设备现在怎么了」。面板点「一键体检」，采集设备信息（型号/版本/分辨率/内存）、Top RSS 进程、崩溃缓冲、W/E/F logcat 窗口、存储用量，落盘到报告存储，并一键发送到对话让 agent 结合 `dsh-adb-crash-analysis` 技能产出结构化诊断结论。还能对比「上午体检 vs 下午体检」的变化。
 - **为什么在 harness 插件上有价值**：Android Studio 只能给原始 dump；模型在 harness 里直接解读成可读结论，报告作为文件留存可回溯。
 - **依托机制**：现有 RPC 采集 + crash-analysis skill + send-to-chat + 新增报告存储（`~/.dsh/storages/dsh-adb/reports`）。
-- **实现**：`adb_device_report` 工具 + RPC `deviceReport` 端点 + 面板「一键体检」按钮；每节独立降级（失败进 errors，不整体失败）。单测 14 例新增，全绿。
+- **实现**：`adb_device_report` 工具 + RPC `deviceReport` 端点 + 面板「一键体检」按钮；每节独立降级（失败进 errors，不整体失败）。**Evidence → Signal**：崩溃按签名分类（真实崩溃+堆栈链 / MediaTek 启动标记 / 其他）、W/E/F 按 tag 聚合（计数+样本行）、插件自产健康摘要（verdict/lines/issues）——agent 从结论出发而非从 17k 行原始日志出发。单测 56 例全绿，真机验证通过。
 
 ---
 
