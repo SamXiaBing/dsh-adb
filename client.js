@@ -55,6 +55,45 @@ function formatSnapshotBlock(snapshot) {
   return ['以下是从设备面板抓取的性能快照，请分析：', ...rows.map((r) => '- ' + r)].join('\n')
 }
 
+/** Format a one-click health report into a send-to-conversation text block. */
+function formatReportBlock(report) {
+  if (!report || typeof report !== 'object') return '（无体检报告数据）'
+  const lines = []
+  const d = report.device
+  if (d) {
+    const parts = [d.model, d.manufacturer, `Android ${d.release ?? '?'}`].filter(Boolean)
+    if (d.sdk) parts.push(`API ${d.sdk}`)
+    if (d.resolution) parts.push(d.resolution)
+    if (d.memTotalKb) parts.push(`内存 ${Math.round(d.memTotalKb / 1024)}MB`)
+    lines.push(`设备：${parts.join(' · ') || report.serial}`)
+  } else {
+    lines.push(`设备：${report.serial || '未知'}`)
+  }
+  const cb = report.crashBuffer
+  const lg = report.logcat
+  lines.push(`崩溃缓冲：${cb ? cb.total : 0} 条`)
+  lines.push(`W/E/F 日志：${lg ? lg.total : 0} 条`)
+  if (Array.isArray(report.topProcesses) || Array.isArray(report.processes)) {
+    const procs = report.topProcesses ?? report.processes
+    lines.push(`Top 进程：${procs.map((p) => `${p.name}(${p.rss}KB)`).join(', ')}`)
+  }
+  if (Array.isArray(report.errors) && report.errors.length > 0) {
+    lines.push(`采集失败：${report.errors.map((e) => `${e.section}: ${e.message}`).join('; ')}`)
+  }
+  lines.push(`采集时间：${report.collectedAt ?? '未知'}`)
+  if (lg && lg.entries && lg.entries.length > 0) {
+    lines.push('', '关键 W/E/F 日志：', '```log',
+      ...lg.entries.map((e) => `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`),
+      '```')
+  }
+  if (cb && cb.entries && cb.entries.length > 0) {
+    lines.push('', '崩溃缓冲（最近）：', '```log',
+      ...cb.entries.map((e) => `${e.time} ${e.pid} ${e.tid} ${e.level} ${e.tag}: ${e.message}`),
+      '```')
+  }
+  return ['以下是从设备面板生成的一键体检报告，请结合 dsh-adb-crash-analysis 技能分析设备健康状态：', ...lines].join('\n')
+}
+
 /** Panel dictionary: zh is the key-set source of truth, en mirrors it. */
 const DICTIONARY = {
   zh: {
@@ -85,6 +124,9 @@ const DICTIONARY = {
     'memPss': '内存 PSS (KB)', 'memRss': '内存 RSS (KB)', 'javaHeap': 'Java Heap (KB)', 'nativeHeap': 'Native Heap (KB)',
     'frames': '总帧数', 'janky': '卡顿帧 / %', 'p50p90': 'P50/P90 (ms)', 'p95p99': 'P95/P99 (ms)',
     'battery': '电量', 'temp': '温度 (°C)', 'pkg': '包=', 'pid': 'pid=',
+    'report': '一键体检', 'reportRunning': '采集中…', 'reportDevice': '设备',
+    'reportCrash': '崩溃缓冲', 'reportLogcat': 'W/E/F 日志', 'reportProcesses': 'Top 进程',
+    'reportErrors': '采集失败', 'reportTime': '采集时间', 'reportSaved': '已保存',
   },
   en: {
     'panel.title': 'ADB Devices',
@@ -114,6 +156,9 @@ const DICTIONARY = {
     'memPss': 'PSS (KB)', 'memRss': 'RSS (KB)', 'javaHeap': 'Java Heap (KB)', 'nativeHeap': 'Native Heap (KB)',
     'frames': 'Total frames', 'janky': 'Janky / %', 'p50p90': 'P50/P90 (ms)', 'p95p99': 'P95/P99 (ms)',
     'battery': 'Battery', 'temp': 'Temp (°C)', 'pkg': 'pkg=', 'pid': 'pid=',
+    'report': 'Health report', 'reportRunning': 'collecting…', 'reportDevice': 'Device',
+    'reportCrash': 'Crash buffer', 'reportLogcat': 'W/E/F logs', 'reportProcesses': 'Top processes',
+    'reportErrors': 'Collection errors', 'reportTime': 'Collected at', 'reportSaved': 'Saved',
   },
 }
 
@@ -149,6 +194,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
           processList: (payload) => call('processList', payload),
           logcatDelta: (payload) => call('logcatDelta', payload),
           perfSnapshot: (payload) => call('perfSnapshot', payload),
+          deviceReport: (payload) => call('deviceReport', payload),
         }
       }
 
@@ -235,7 +281,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
 
         const selectDevice = (device) => {
           actions.setSelected(device)
-          actions.setInfo(null); actions.setSnapshot(null); actions.setProcesses([])
+          actions.setInfo(null); actions.setSnapshot(null); actions.setReport(null); actions.setProcesses([])
           actions.clearLog()
           setBusy(true); actions.setError(null)
           Promise.all([
@@ -259,6 +305,16 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
           setBusy(true); actions.setError(null)
           runtime.perfSnapshot({ serial: device.serial, package: st.pkg })
             .then(actions.setSnapshot)
+            .catch(fail)
+            .finally(() => setBusy(false))
+        }
+
+        const runReport = () => {
+          const device = stateRef.current.selected
+          if (!device) return
+          setBusy(true); actions.setError(null)
+          runtime.deviceReport({ serial: device.serial })
+            .then(actions.setReport)
             .catch(fail)
             .finally(() => setBusy(false))
         }
@@ -319,6 +375,25 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
           ? [[t('model'), st.info.model], [t('manufacturer'), st.info.manufacturer], [t('android'), st.info.release], [t('api'), st.info.sdk], [t('resolution'), st.info.resolution], [t('memTotal'), st.info.memTotalKb ? `${Math.round(st.info.memTotalKb / 1024)} MB` : undefined]].filter((r) => r[1] !== undefined && r[1] !== null)
           : []
 
+        const reportRows = []
+        if (st.report) {
+          const r = st.report
+          if (r.device) {
+            const parts = [r.device.model, r.device.release, r.device.sdk ? `API ${r.device.sdk}` : r.device.sdk].filter(Boolean)
+            reportRows.push([t('reportDevice'), parts.join(' · ')])
+          }
+          reportRows.push([t('reportCrash'), r.crashBuffer ? `${r.crashBuffer.total} 条` : '0 条'])
+          reportRows.push([t('reportLogcat'), r.logcat ? `${r.logcat.total} 条` : '0 条'])
+          if (Array.isArray(r.topProcesses) || Array.isArray(r.processes)) {
+            const procs = r.topProcesses ?? r.processes
+            reportRows.push([t('reportProcesses'), procs.slice(0, 5).map((p) => `${p.name}(${p.rss}KB)`).join(', ')])
+          }
+          if (Array.isArray(r.errors) && r.errors.length > 0) {
+            reportRows.push([t('reportErrors'), r.errors.length])
+          }
+          if (r.savedTo) reportRows.push([t('reportSaved'), r.savedTo])
+        }
+
         const pidsLabel = st.logPids.length > 0 ? ` · ${t('pid')}${st.logPids.join(',')}` : ''
         const statusText = `${t('shownCount').replace('{n}', String(st.logEntries.length))}${st.logPkg ? ` · ${t('pkg')}${st.logPkg}` : ''}${pidsLabel}${st.logPaused ? ` · ${t('paused')}` : ` · ${t('refreshing')}`}`
 
@@ -349,6 +424,14 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
             st.info !== null && infoRows.length > 0 && h('div', { style: SECTION },
               h('strong', null, t('deviceInfo')),
               h(MetricRows, { rows: infoRows }),
+            ),
+
+            h('div', { style: SECTION },
+              h('div', { style: ROW },
+                h('button', { style: BTN, onClick: runReport, disabled: busy }, busy ? t('reportRunning') : t('report')),
+                st.report && h('button', { style: BTN, onClick: () => sendToChat(formatReportBlock(st.report)) }, t('sendToChat')),
+              ),
+              st.report && h('div', { style: { marginTop: 8 } }, h(MetricRows, { rows: reportRows })),
             ),
 
             h('div', { style: SECTION },
@@ -415,7 +498,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
         const panelStore = defineStore({
           init: () => ({
             devices: [], selected: null, info: null, packages: [], pkg: 'com.android.systemui',
-            snapshot: null, processes: [], logEntries: [], logSince: '',
+            snapshot: null, report: null, processes: [], logEntries: [], logSince: '',
             logLevel: 'V', logKeyword: '', logPkg: '', logPids: [], logPaused: false, logAuto: true, error: null,
           }),
           actions: {
@@ -425,6 +508,7 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
             setPackages: (d, v) => { d.packages = v },
             setPkg: (d, v) => { d.pkg = v },
             setSnapshot: (d, v) => { d.snapshot = v },
+            setReport: (d, v) => { d.report = v },
             setProcesses: (d, v) => { d.processes = v },
             setError: (d, v) => { d.error = v },
             appendLog: (d, entries) => {
@@ -464,5 +548,5 @@ if (typeof window !== 'undefined' && typeof window.__ModuleLoader__ === 'object'
     },
   })
 } else if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf, DICTIONARY }
+  module.exports = { formatLogcatBlock, formatSnapshotBlock, formatReportBlock, extractAdbActivity, nodeArrayOf, DICTIONARY }
 }

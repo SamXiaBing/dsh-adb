@@ -9,7 +9,7 @@ import vm from 'node:vm'
 const code = readFileSync(new URL('../client.js', import.meta.url), 'utf8')
 const sandbox = { module: { exports: {} } }
 vm.runInNewContext(code, sandbox, { filename: 'client.js' })
-const { formatLogcatBlock, formatSnapshotBlock, extractAdbActivity, nodeArrayOf, DICTIONARY } = sandbox.module.exports
+const { formatLogcatBlock, formatSnapshotBlock, formatReportBlock, extractAdbActivity, nodeArrayOf, DICTIONARY } = sandbox.module.exports
 
 test('dictionary: zh and en share the same key set and every key resolves', () => {
   const zhKeys = Object.keys(DICTIONARY.zh).sort()
@@ -46,6 +46,41 @@ test('formatSnapshotBlock renders meminfo/gfxinfo/battery rows', () => {
   assert.match(block, /卡顿=12\(5%\)/)
   assert.match(block, /电量=87%/)
   assert.match(block, /^以下是从设备面板抓取的性能快照，请分析：/)
+})
+
+test('formatReportBlock renders device summary, counts, top processes, and log blocks', () => {
+  const report = {
+    collectedAt: '2026-08-19T08:00:00.000Z',
+    serial: 'abc123',
+    device: { model: '22011211C', manufacturer: 'Xiaomi', release: '13', sdk: '33', resolution: '1080x2400', memTotalKb: 1234567 },
+    topProcesses: [{ name: 'com.android.systemui', pid: '1234', rss: 23456 }, { name: 'com.example.hmi', pid: '5678', rss: 8888 }],
+    crashBuffer: { total: 1, truncated: false, entries: [{ time: '08-19 07:59:00.000', pid: '1234', tid: '1', level: 'F', tag: 'libc', message: 'Fatal signal 11' }] },
+    logcat: { total: 1, truncated: false, entries: [{ time: '08-19 07:59:01.000', pid: '1234', tid: '1', level: 'E', tag: 'HmiApp', message: 'boom' }] },
+    errors: [],
+    savedTo: 'abc123--42.json',
+  }
+  const block = formatReportBlock(report)
+  assert.match(block, /^以下是从设备面板生成的一键体检报告/)
+  assert.match(block, /22011211C · Xiaomi · Android 13 · API 33 · 1080x2400 · 内存 1206MB/)
+  assert.match(block, /崩溃缓冲：1 条/)
+  assert.match(block, /W\/E\/F 日志：1 条/)
+  assert.match(block, /com\.android\.systemui\(23456KB\)/)
+  assert.match(block, /Fatal signal 11/)
+  assert.match(block, /boom/)
+  assert.equal(formatReportBlock(null), '（无体检报告数据）')
+})
+
+test('formatReportBlock surfaces per-section collection errors', () => {
+  const report = {
+    collectedAt: '2026-08-19T08:00:00.000Z',
+    serial: 'abc123',
+    crashBuffer: { total: 0, truncated: false, entries: [] },
+    logcat: { total: 0, truncated: false, entries: [] },
+    errors: [{ section: 'device', message: 'adb.exe: device not found' }, { section: 'storage', message: 'Permission denied' }],
+  }
+  const block = formatReportBlock(report)
+  assert.match(block, /采集失败：device: adb\.exe: device not found; storage: Permission denied/)
+  assert.match(block, /崩溃缓冲：0 条/)
 })
 
 test('extractAdbActivity filters adb_* tool-call nodes, newest last-8 reversed', () => {

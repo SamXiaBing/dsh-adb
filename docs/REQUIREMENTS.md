@@ -30,8 +30,9 @@ dsh-adb 让 DSH agent 直接操作 Android 设备/车机台架：设备发现、
 | `adb_perf_snapshot` | 性能快照 | meminfo/gfxinfo 需包名；battery 是设备全局、**不得传包名** |
 | `adb_perf_baseline` | 性能基线（v0.2） | save 存快照（label/tags）；compare 数值 diff；list/delete；本地 JSON 存储（`baselineDir`） |
 | `adb_crash_report` | 崩溃现场（v0.2） | crash buffer（解析条目）+ dropbox 摘录 + 进程摘录 + 可选 meminfo；`since`/`tail` 控制 |
+| `adb_device_report` | 一键体检（v1.2） | 设备信息 + Top RSS 进程 + 崩溃缓冲 + W/E/F logcat 窗口 + 存储用量，单节独立降级；落盘到报告存储（`reportDir`，缺省 `<baselineDir>/reports`） |
 
-配置（`Config` schema，cordis.patch.yml 可覆盖）：`adbPath`（绝对路径，缺省自动探测 PATH/ANDROID_HOME/ANDROID_SDK_ROOT）、`defaultSerial`、`timeoutMs`（默认 30000）、`baselineDir`（基线存储，缺省 `~/.dsh/storages/dsh-adb`）。
+配置（`Config` schema，cordis.patch.yml 可覆盖）：`adbPath`（绝对路径，缺省自动探测 PATH/ANDROID_HOME/ANDROID_SDK_ROOT）、`defaultSerial`、`timeoutMs`（默认 30000）、`baselineDir`（基线存储，缺省 `~/.dsh/storages/dsh-adb`）、`reportDir`（体检报告存储，缺省 `<baselineDir>/reports`）。
 
 错误码（模型可见契约，稳定）：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`ADB_CONFIG_INVALID`、`ADB_LAUNCH_FAILED`、`ADB_KILLED`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`ADB_DEVICE_CLOSED`、`INSTALL_FAILED`、`LOCAL_FILE_NOT_FOUND`、`ARGS_INVALID`、`JOBS_UNAVAILABLE`、`ADB_EXIT_<code>`（兜底）。
 
@@ -44,7 +45,7 @@ dsh-adb 让 DSH agent 直接操作 Android 设备/车机台架：设备发现、
 ### 明确不做
 
 - 车机业务协议解析（SR/感知物/SOME-IP/MMKV 等）——领域 skill 的职责
-- GUI 自动化 / 点击注入（生态已有 dsh-computer-use 类）
+- 完整 GUI 自动化框架（UIAutomator/Appium 集成）——`input tap/swipe` 的脚本化冒烟测试以「台架自动化测试」排入 [ROADMAP.md](ROADMAP.md) ④（脚本执行 + AI 图像比对），但绑定测试框架不在本插件范围
 - 绑定 Unity / 单一厂商
 
 ## 验收标准（每工具）

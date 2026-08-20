@@ -4,6 +4,7 @@ import { DEFAULT_BASELINE_DIR } from './baseline.js'
 import type { AdbConfig } from './adb.js'
 import { registerDeviceTools } from './tools/devices.js'
 import { registerCrashReportTool } from './tools/crash-report.js'
+import { registerDeviceReportTool } from './tools/device-report.js'
 import { registerFileTool } from './tools/file.js'
 import { registerInstallTool } from './tools/install.js'
 import { registerLogcatTool } from './tools/logcat.js'
@@ -27,6 +28,8 @@ export interface Config {
   timeoutMs?: number
   /** Directory for adb_perf_baseline storage. */
   baselineDir?: string
+  /** Directory for adb_device_report storage; defaults to <baselineDir>/reports. */
+  reportDir?: string
 }
 
 export const Config: Schema<Config> = Schema.object({
@@ -34,10 +37,12 @@ export const Config: Schema<Config> = Schema.object({
   defaultSerial: Schema.string().description('默认目标设备 serial'),
   timeoutMs: Schema.number().default(30000).description('adb 命令超时（毫秒）'),
   baselineDir: Schema.string().description('adb_perf_baseline 基线存储目录；缺省 ~/.dsh/storages/dsh-adb'),
+  reportDir: Schema.string().description('adb_device_report 报告存储目录；缺省 ~/.dsh/storages/dsh-adb/reports'),
 })
 
 export function apply(ctx: Context, config: Config): void {
   const cfg: AdbConfig = config
+  const reportDir = config.reportDir ?? `${(config.baselineDir ?? DEFAULT_BASELINE_DIR).replace(/\\/g, '/')}/reports`
   registerDeviceTools(ctx, cfg)
   registerInstallTool(ctx, cfg)
   registerFileTool(ctx, cfg)
@@ -45,10 +50,11 @@ export function apply(ctx: Context, config: Config): void {
   registerPerfTool(ctx, cfg)
   registerPerfBaselineTool(ctx, cfg, config.baselineDir ?? DEFAULT_BASELINE_DIR)
   registerCrashReportTool(ctx, cfg)
+  registerDeviceReportTool(ctx, cfg, reportDir)
   registerSkills(ctx)
   // The RPC channel needs the client connection, which mounts after this
   // plugin starts in web compositions; register lazily so headless profiles
   // (no connection) stay unaffected.
-  ctx.inject(['connection'], (readyCtx) => registerRpc(readyCtx, cfg))
-  ctx.logger.info('[dsh-adb] loaded: 9 tools + web device panel rpc')
+  ctx.inject(['connection'], (readyCtx) => registerRpc(readyCtx, cfg, reportDir))
+  ctx.logger.info('[dsh-adb] loaded: 10 tools + web device panel rpc')
 }

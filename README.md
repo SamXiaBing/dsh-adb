@@ -16,11 +16,11 @@ Or install directly from GitHub: `dsh plugin --profile web add github:SamXiaBing
 
 ## Web device panel (v1.1.0)
 
-A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/package/pid filters, pause/clear/auto-scroll), device info card, process list, and performance snapshot — plus harness synergy: **send any logcat/snapshot to the conversation** (the agent analyzes it), a live strip of the agent's adb operations, and a registered **crash-analysis skill** (`dsh-adb-crash-analysis`) for automation pipelines. Data flows over the package RPC channel; install into a web profile and restart the GUI (see `scripts/restart-web.ps1` for a one-click restart).
+A "设备" tab in the conversation view ring (next to chat / trajectory / automation): device list with status, package autocomplete (fuzzy search), live streaming logcat window (level/keyword/package/pid filters, pause/clear/auto-scroll), device info card, process list, performance snapshot, and a **one-click health report** (设备体检: device identity, top-RSS processes, crash buffer, W/E/F logcat window, storage — persisted under `reportDir`, sendable to the conversation for diagnosis) — plus harness synergy: **send any logcat/snapshot/report to the conversation** (the agent analyzes it), a live strip of the agent's adb operations, and a registered **crash-analysis skill** (`dsh-adb-crash-analysis`) for automation pipelines. Data flows over the package RPC channel; install into a web profile and restart the GUI (see `scripts/restart-web.ps1` for a one-click restart).
 
 ## Ecosystem
 
-- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 1.0.0)
+- ✅ [npm](https://www.npmjs.com/package/dsh-adb) — `dsh-adb` published (latest: 1.1.0)
 - ✅ [awesome-deepseek-harness#87](https://github.com/0xsline/awesome-deepseek-harness/pull/87) — **merged**
 - ✅ [awesome-dsh-plugin#85](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin/pull/85) — **merged**
 - ✅ [awesome-DSH-plugin#29](https://github.com/Alex-Yanggg/awesome-DSH-plugin/pull/29) — **merged**
@@ -39,6 +39,7 @@ Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_perf_snapshot` | Structured `dumpsys meminfo / gfxinfo / battery` snapshots (PSS, frame percentiles, jank rate, battery) |
 | `adb_perf_baseline` | Perf regression: save a snapshot as a baseline (label/tags), compare current state and get a numeric diff (PSS, janky %, percentiles), list/delete baselines (stored locally under `baselineDir`) |
 | `adb_crash_report` | One-call crash scene: parsed logcat crash buffer + dropbox excerpt + process state + memory summary |
+| `adb_device_report` | One-click health report: device identity + top-RSS processes + crash buffer + W/E/F logcat window + storage; each section degrades independently; persisted under `reportDir` |
 
 Errors are structured `AdbError` with stable codes: `ADB_NOT_FOUND`, `ADB_UNAVAILABLE`, `DEVICE_NOT_FOUND`, `NO_DEVICES`, `CONNECT_FAILED`, `INSTALL_FAILED`, `ADB_EXIT_<code>`, etc.
 
@@ -61,6 +62,7 @@ Set the `config` block in `cordis.patch.yml` (or a profile patch):
 | `defaultSerial` | Default target device serial | none |
 | `timeoutMs` | Per-command timeout | 30000 |
 | `baselineDir` | Directory for `adb_perf_baseline` storage | `~/.dsh/storages/dsh-adb` |
+| `reportDir` | Directory for `adb_device_report` storage | `<baselineDir>/reports` |
 
 ## Development
 
@@ -83,6 +85,7 @@ npm pack --dry-run     # verify publish contents (lib/ + cordis.patch.yml)
 - [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) / [docs/REQUIREMENTS.en.md](docs/REQUIREMENTS.en.md) — purpose / scope / non-goals / acceptance criteria
 - [docs/TESTING.md](docs/TESTING.md) / [docs/TESTING.en.md](docs/TESTING.en.md) — testing philosophy, three test layers, E2E steps, regression checklist
 - [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md) / [docs/DEVELOPMENT-LOG.en.md](docs/DEVELOPMENT-LOG.en.md) — timeline, fixed-bug lessons, environment & ecosystem notes
+- [docs/ROADMAP.md](docs/ROADMAP.md) — harness×adb synergy feature roadmap (diagnosis report, crash attribution, screenshot vision, bench automation tests, wait primitives, approvals, multi-device compare, scheduled monitoring, rollback ledger)
 - [PLAN.md](PLAN.md) / [PLAN.en.md](PLAN.en.md) — milestones & backlog
 
 ## License

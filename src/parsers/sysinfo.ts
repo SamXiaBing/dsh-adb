@@ -24,6 +24,8 @@ export function parseGetprop(text: string): Record<string, string> {
 export interface ProcessEntry {
   pid: string
   name: string
+  /** Resident set size in KB (Android `ps -A` column 4), when numeric. */
+  rss?: number
 }
 
 /** Parse `ps -A` output (Android toybox: USER PID PPID VSZ RSS WCHAN ADDR S NAME). */
@@ -33,12 +35,14 @@ export function parseProcessList(text: string): ProcessEntry[] {
     const line = rawLine.trim()
     if (line === '' || /^USER\s+PID/.test(line)) continue
     const parts = line.split(/\s+/)
-    // Android ps: index 1 = PID, last = NAME (comm may be in brackets)
+    // Android ps: index 1 = PID, index 4 = RSS, last = NAME (comm may be in brackets)
     if (parts.length < 2) continue
     const pid = parts[1]
     const name = parts[parts.length - 1]
     if (pid !== undefined && name !== undefined && /^\d+$/.test(pid)) {
-      entries.push({ pid, name })
+      const rssRaw = parts[4]
+      const rss = rssRaw !== undefined && /^\d+$/.test(rssRaw) ? Number(rssRaw) : undefined
+      entries.push({ pid, name, ...(rss !== undefined ? { rss } : {}) })
     }
   }
   return entries

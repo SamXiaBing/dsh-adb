@@ -2,6 +2,17 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [1.2.0] - 2026-08-19
+
+**Added（一键体检，ROADMAP ①）**：
+- **`adb_device_report` 工具**：一键采集设备信息（型号/厂商/版本/API/指纹/分辨率/内存）、Top RSS 进程、崩溃缓冲、W/E/F logcat 窗口、存储用量；每节独立降级（失败进 `errors`，不整体失败）；报告落盘到报告存储（`reportDir`，缺省 `<baselineDir>/reports`，`<serial>--<epoch>.json`）。
+- **RPC `deviceReport` 端点**：面板「一键体检」按钮同源复用采集，结果含 `savedTo`。
+- **面板「一键体检」**：采集摘要展示（设备/崩溃数/W-E-F 数/Top 进程/采集失败/保存位置）+「发送到对话」写入体检报告文本块（含崩溃缓冲与 W/E/F 日志块，提示结合 crash-analysis 技能分析）。
+- **`parseProcessList` 增加 `rss` 字段**（Android `ps -A` 第 4 列），体检按 RSS 排序取内存大户。
+- **功能路线图文档 [docs/ROADMAP.md](docs/ROADMAP.md)**：9 条 harness×adb 协同功能（诊断报告/崩溃归因/截图视觉/台架自动化测试/等待原语/审批/多设备对比/定时巡检/回滚台账），每条含使用场景 + harness 独有价值 + 依托机制 + 成本。台架自动化测试（脚本执行 + AI 图像比对）按用户要求排在截图视觉之后。
+
+**Verified**：单测 51 全绿（新增 14 例：报告采集 4 + 报告存储 4 + RPC deviceReport 3 + 面板 formatReportBlock 2 + rss 解析 1）。**GUI 验收待用户刷新后确认**（体检按钮/摘要/发送到对话）。
+
 ## [1.1.3] - 2026-08-19
 
 **Added（i18n + 状态持久化）**：

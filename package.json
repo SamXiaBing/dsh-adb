@@ -1,7 +1,7 @@
 {
   "name": "dsh-adb",
-  "version": "1.1.0",
-  "description": "ADB device & bench operations for DeepSeek Harness: device discovery, structured logcat, apk install, file pull/push, performance snapshots, perf baselines, crash reports, web device panel (autocomplete, live logcat, profiler)",
+  "version": "1.2.0",
+  "description": "ADB device & bench operations for DeepSeek Harness: device discovery, structured logcat, apk install, file pull/push, performance snapshots, perf baselines, crash reports, one-click device health reports, web device panel (autocomplete, live logcat, profiler)",
   "type": "module",
   "main": "lib/index.js",
   "exports": {

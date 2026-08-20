@@ -18,7 +18,7 @@ test('parseGetprop parses [key]: [value] pairs', () => {
   assert.equal(props.missing, undefined)
 })
 
-test('parseProcessList extracts pid and name, skips header', () => {
+test('parseProcessList extracts pid, rss and name, skips header', () => {
   const text = [
     'USER     PID   PPID  VSZ    RSS   WCHAN    ADDR S NAME',
     'root      1     0     31264  1720  SyS_epoll 0    S init',
@@ -30,9 +30,12 @@ test('parseProcessList extracts pid and name, skips header', () => {
   assert.equal(entries.length, 3)
   assert.equal(entries[0].pid, '1')
   assert.equal(entries[0].name, 'init')
+  assert.equal(entries[0].rss, 1720)
   assert.equal(entries[1].pid, '1234')
   assert.equal(entries[1].name, 'com.android.systemui')
+  assert.equal(entries[1].rss, 23456)
   assert.equal(entries[2].pid, '5678')
+  assert.equal(entries[2].rss, 8888)
 })
 
 test('parseMemTotal extracts kB', () => {

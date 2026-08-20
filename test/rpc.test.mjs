@@ -1,5 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { handleRpcEndpoint } from '../lib/rpc.js'
 
 const DEVICES_OUT = 'List of devices attached\nabc123 device product:matisse model:22011211C transport_id:1\n'
@@ -30,6 +33,16 @@ const LOGCAT_OUT = [
   '08-14 10:30:12.348  9999  7777 W Other: w2',
   '',
 ].join('\n')
+const CRASH_OUT = [
+  '08-14 10:31:00.000  1234  5678 F libc: Fatal signal 11 (SIGSEGV)',
+  '08-14 10:31:00.001  1234  5678 E DEBUG: backtrace: #00 pc 0001',
+  '',
+].join('\n')
+const DF_OUT = [
+  'Filesystem      1K-blocks     Used Available Use% Mounted on',
+  '/dev/block/sda5   58458112 30407680  28050432  53% /data',
+  '',
+].join('\n')
 
 function routerFor(argv) {
   const joined = argv.join(' ')
@@ -44,7 +57,9 @@ function routerFor(argv) {
   }
   if (joined.includes('dumpsys gfxinfo')) return { stdout: GFXINFO_OUT, stderr: '', exitCode: 0 }
   if (joined.includes('dumpsys battery')) return { stdout: '  level: 87\n  status: 2\n  temperature: 312\n', stderr: '', exitCode: 0 }
+  if (joined.includes('logcat -b crash')) return { stdout: CRASH_OUT, stderr: '', exitCode: 0 }
   if (joined.includes('logcat')) return { stdout: LOGCAT_OUT, stderr: '', exitCode: 0 }
+  if (joined.includes('shell df')) return { stdout: DF_OUT, stderr: '', exitCode: 0 }
   throw new Error(`unexpected adb argv: ${joined}`)
 }
 
@@ -66,9 +81,12 @@ function fakeCtx(router) {
   return { get: (name) => (name === 'subprocess' ? subprocess : undefined) }
 }
 
+const REPORT_DIR = mkdtempSync(join(tmpdir(), 'dsh-adb-rpc-report-'))
+test.after(() => rmSync(REPORT_DIR, { recursive: true, force: true }))
+
 function call(endpoint, payload, router = routerFor) {
   const signal = new AbortController().signal
-  return handleRpcEndpoint(fakeCtx(router), {}, endpoint, payload, signal)
+  return handleRpcEndpoint(fakeCtx(router), {}, REPORT_DIR, endpoint, payload, signal)
 }
 
 test('rpc listDevices returns parsed devices', async () => {
@@ -170,4 +188,54 @@ test('rpc unknown endpoint returns ok:false', async () => {
   const result = await call('nope', {})
   assert.equal(result.ok, false)
   if (!result.ok) assert.match(result.error.message, /unknown endpoint/)
+})
+
+test('rpc deviceReport collects all sections and persists', async () => {
+  const result = await call('deviceReport', { serial: 'abc123' })
+  assert.equal(result.ok, true)
+  if (result.ok) {
+    const value = result.value
+    assert.equal(value.serial, 'abc123')
+    assert.equal(value.device.model, '22011211C')
+    assert.equal(value.device.resolution, '1080x2400')
+    assert.equal(value.device.memTotalKb, 1234567)
+    assert.equal(value.crashBuffer.total, 2)
+    assert.equal(value.logcat.total, 3) // W/E/F only from the main buffer
+    assert.ok(value.topProcesses === undefined || Array.isArray(value.topProcesses))
+    assert.ok(value.storage.excerpt.includes('/data'))
+    assert.deepEqual(value.errors, [])
+    assert.match(value.savedTo, /abc123--\d+\.json/)
+    // The report file is actually on disk and loadable.
+    const stored = readFileSync(join(REPORT_DIR, value.savedTo), 'utf8')
+    assert.match(stored, /22011211C/)
+  }
+})
+
+test('rpc deviceReport degrades per-section on adb failure', async () => {
+  const failing = (argv) => {
+    const joined = argv.join(' ')
+    if (joined.includes('logcat -b crash')) {
+      return { stdout: '', stderr: "adb.exe: device 'ghost' not found", exitCode: 1 }
+    }
+    return routerFor(argv)
+  }
+  const result = await call('deviceReport', { serial: 'abc123' }, failing)
+  assert.equal(result.ok, true)
+  if (result.ok) {
+    assert.equal(result.value.crashBuffer, undefined)
+    assert.equal(result.value.errors.length, 1)
+    assert.equal(result.value.errors[0].section, 'crash')
+    assert.ok(result.value.device !== undefined, 'other sections still collected')
+  }
+})
+
+test('rpc deviceReport honors include filtering', async () => {
+  const result = await call('deviceReport', { serial: 'abc123', include: ['device'] })
+  assert.equal(result.ok, true)
+  if (result.ok) {
+    assert.ok(result.value.device !== undefined)
+    assert.equal(result.value.crashBuffer, undefined)
+    assert.equal(result.value.logcat, undefined)
+    assert.deepEqual(result.value.errors, [])
+  }
 })

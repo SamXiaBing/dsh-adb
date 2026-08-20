@@ -15,6 +15,8 @@ import {
   type ProcessEntry,
 } from './parsers/sysinfo.js'
 import { capturePerfSnapshot } from './tools/perf.js'
+import { collectDeviceReport, REPORT_SECTIONS, type ReportSection } from './report.js'
+import { saveReport } from './report-store.js'
 
 export type RpcEndpointResult = { ok: true; value: unknown } | { ok: false; error: { message: string } }
 
@@ -46,6 +48,7 @@ function serialOf(payload: Record<string, unknown>): string | undefined {
 export async function handleRpcEndpoint(
   ctx: Context,
   cfg: AdbConfig,
+  reportDir: string,
   endpoint: string,
   raw: unknown,
   signal: AbortSignal,
@@ -149,6 +152,16 @@ export async function handleRpcEndpoint(
         return { ok: true, value: { package: pkg, meminfo: snapshot.meminfo, battery: snapshot.battery } }
       }
 
+      case 'deviceReport': {
+        const include = Array.isArray(payload.include)
+          ? (payload.include as unknown[]).filter((item): item is ReportSection => typeof item === 'string' && (REPORT_SECTIONS as readonly string[]).includes(item))
+          : undefined
+        const tail = typeof payload.tail === 'number' ? payload.tail : undefined
+        const report = await collectDeviceReport(ctx, cfg, signal, { serial: serialOf(payload), include, tail })
+        const saved = saveReport(reportDir, report)
+        return { ok: true, value: { ...report, savedTo: saved.file } }
+      }
+
       default:
         return { ok: false, error: { message: `unknown endpoint: ${endpoint}` } }
     }
@@ -162,14 +175,14 @@ export async function handleRpcEndpoint(
  * (conversation.view tab "设备"). Called lazily once the client connection
  * mounts; headless compositions (no connection) stay unaffected.
  */
-export function registerRpc(ctx: Context, cfg: AdbConfig): void {
+export function registerRpc(ctx: Context, cfg: AdbConfig, reportDir: string): void {
   const connection = ctx.get('connection') as RpcConnection | undefined
   const rpc = connection?.rpc
   if (rpc === undefined) return
   ctx.effect(() => rpc.handle(
     '/dsh-adb',
     (endpoint: string, raw: unknown, signal: AbortSignal) =>
-      handleRpcEndpoint(ctx, cfg, endpoint, raw, signal),
+      handleRpcEndpoint(ctx, cfg, reportDir, endpoint, raw, signal),
     // Browser-only channel: accept requests from the loopback web GUI.
     { authority: 'loopback' },
   ))
