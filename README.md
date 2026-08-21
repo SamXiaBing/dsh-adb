@@ -40,6 +40,7 @@ Topics: `dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_perf_baseline` | Perf regression: save a snapshot as a baseline (label/tags), compare current state and get a numeric diff (PSS, janky %, percentiles), list/delete baselines (stored locally under `baselineDir`) |
 | `adb_crash_report` | One-call crash scene: parsed logcat crash buffer + dropbox excerpt + process state + memory summary |
 | `adb_device_report` | One-click health report: device identity + top-RSS processes + crash buffer (real crashes w/ stacks vs. boot markers) + W/E/F logcat aggregated by tag + storage + health verdict; each section degrades independently; persisted under `reportDir` |
+| `adb_wait_for` | Wait until a device condition holds — device-online / boot-complete / process appeared / logcat keyword — polling up to a budget, instead of sleeping a fixed number of seconds; returns `matched:false` on timeout |
 
 Errors are structured `AdbError` with stable codes: `ADB_NOT_FOUND`, `ADB_UNAVAILABLE`, `DEVICE_NOT_FOUND`, `NO_DEVICES`, `CONNECT_FAILED`, `INSTALL_FAILED`, `ADB_EXIT_<code>`, etc.
 

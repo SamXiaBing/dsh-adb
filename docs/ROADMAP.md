@@ -15,6 +15,13 @@ harness × adb 协同功能路线图。每个功能标注：**使用场景**、*
 - **依托机制**：现有 RPC 采集 + crash-analysis skill + send-to-chat + 新增报告存储（`~/.dsh/storages/dsh-adb/reports`）。
 - **实现**：`adb_device_report` 工具 + RPC `deviceReport` 端点 + 面板「一键体检」按钮；每节独立降级（失败进 errors，不整体失败）。**Evidence → Signal**：崩溃按签名分类（真实崩溃+堆栈链 / MediaTek 启动标记 / 其他）、W/E/F 按 tag 聚合（计数+样本行）、插件自产健康摘要（verdict/lines/issues）——agent 从结论出发而非从 17k 行原始日志出发。单测 56 例全绿，真机验证通过。
 
+### ⑤ 等待/条件原语 — 模型→设备 ✅（v1.3.0）
+
+- **使用场景**：agent 编排多步流水线「装 APK → 等设备在线 → 等 MainActivity 出现在 logcat → 抓快照」，而不是盲目 sleep 固定秒数。
+- **为什么在 harness 插件上有价值**：agent loop + 后台 jobs 让「观察→判断→继续」成为一等原语；单一 adb 命令做不到跨命令编排，这是 agent 驱动设备的刚需。
+- **依托机制**：`adb_wait_for` 工具（设备在线/启动完成/进程出现/logcat 关键字），轮询到预算上限，超时返回 `matched:false` 而非抛错。
+- **实现**：纯 host 新工具；单测 68 全绿（条件纯函数 4 + 轮询序列 8）；真机验证通过（K50 Pro：device-online / process 均 matched）。是台架自动化测试④、崩溃归因②、定时巡检⑧的地基原语。
+
 ---
 
 ## 待开发
@@ -40,13 +47,6 @@ harness × adb 协同功能路线图。每个功能标注：**使用场景**、*
 - **依托机制**：adb 执行核心（am/input 现成）+ screenshot 端点 + `ctx.llm.stream` 视觉模型路由 + image attachment 服务（attachment-local `saveImage/readImage`）+ send-to-chat。检测条件类型：image（视觉比对）/ text（uiautomator dump 查文本）/ process（进程存活）/ property（getprop 值）。
 - **注意**：视觉比对需要部署配置了支持图像的模型路由；若只有纯文本模型，自动降级为像素级 diff + 文本条件，功能不失效只是少 AI 判断。
 - **成本**：中-高（脚本引擎 + 检测层 + 结果反馈 + 配套文档）。状态：待开发。
-
-### ⑤ 等待/条件原语 — 模型→设备
-
-- **使用场景**：agent 编排多步流水线「装 APK → 等设备在线 → 等 MainActivity 出现在 logcat → 抓快照」，而不是盲目 sleep 固定秒数。
-- **为什么在 harness 插件上有价值**：agent loop + 后台 jobs 让「观察→判断→继续」成为一等原语；单一 adb 命令做不到跨命令编排，这是 agent 驱动设备的刚需。
-- **依托机制**：ctx.jobs 后台任务 + `adb_wait_for` 新工具（设备在线/启动完成/进程出现/logcat 模式）。
-- **成本**：小（纯 host 新工具 + 测试）。状态：待开发。
 
 ### ⑥ 危险操作审批 — 模型→设备
 

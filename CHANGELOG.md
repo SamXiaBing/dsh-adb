@@ -2,6 +2,14 @@
 
 版本化变更与验证记录。测试方法与覆盖现状见 [docs/TESTING.md](docs/TESTING.md)；历史教训见 [docs/DEVELOPMENT-LOG.md](docs/DEVELOPMENT-LOG.md)。
 
+## [1.3.0] - 2026-08-20
+
+**Added（等待原语，ROADMAP ⑤）**：
+- **`adb_wait_for` 工具**：等待设备达到某条件再继续，替代盲目 sleep 固定秒数。条件：`device-online`（设备出现在 adb devices 且 state=device；不传 serial 时等任意设备上线）、`boot-complete`（`sys.boot_completed`=1）、`process`（`ps -A` 出现名称含 pattern 的进程）、`logcat-pattern`（主缓冲 tag/message 出现关键字）。轮询 `intervalMs`（默认 1s，最小 250ms）直到 `timeoutMs`（默认 30s，上限 300s）；**超时返回 `matched:false` 而非抛错**，agent 可对超时做反应；瞬时探测失败（设备中途离线）不终止，持续到预算。
+- **agent 编排能力提升**：把「装 APK 后盲等 5 秒再抓快照」变成「等 com.example 进程出现后再抓快照」的确定性序列——是台架自动化测试④、崩溃归因②、定时巡检⑧的地基原语。
+
+**Verified**：单测 68 全绿（新增 12 例：条件纯函数 4 + 轮询序列 8，含超时返回 matched:false、瞬时失败容忍、参数校验快速失败）。**真机验证通过（Redmi K50 Pro）**：device-online matched（1 次探测）、process（com.android.systemui）matched。已发布。
+
 ## [1.2.0] - 2026-08-19
 
 **Added（一键体检，ROADMAP ①）**：

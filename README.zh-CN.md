@@ -40,6 +40,7 @@ Topics：`dsh-plugin` `dsh` `adb` `android` `automotive` `bench`
 | `adb_perf_baseline` | 性能回归：快照存基线（label/tags）、与当前状态数值对比（PSS/卡顿率/百分位）、list/delete（本地存储，`baselineDir`） |
 | `adb_crash_report` | 崩溃现场一键采集：crash buffer 解析 + dropbox 摘录 + 进程状态 + 内存摘要 |
 | `adb_device_report` | 一键体检：设备信息 + Top RSS 进程 + 崩溃缓冲（真实崩溃带堆栈/启动标记分类）+ W/E/F 日志按 tag 聚合 + 存储用量 + 健康结论；每节独立降级；落盘到 `reportDir` |
+| `adb_wait_for` | 等待原语：等设备上线 / 启动完成 / 进程出现 / logcat 出现关键字，轮询到预算上限，替代盲目 sleep；超时返回 `matched:false` |
 
 错误码：`ADB_NOT_FOUND`、`ADB_UNAVAILABLE`、`DEVICE_NOT_FOUND`、`NO_DEVICES`、`CONNECT_FAILED`、`INSTALL_FAILED`、`ADB_EXIT_<code>` 等，均为结构化 `AdbError`。
 
